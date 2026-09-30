@@ -12,6 +12,14 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 
 - LangChain **Python** parity (a PyPI package mirroring the core).
 
+## [1.0.1](https://github.com/CMaintz/jev-tools/compare/jev-guard-v1.0.0...jev-guard-v1.0.1) (2026-09-30)
+
+
+### Bug Fixes
+
+* **guard:** drop the no-op escalateBelow from noul-only presets ([7704cc5](https://github.com/CMaintz/jev-tools/commit/7704cc58427dee9356ace02c5cbdf0fab21eecae))
+* **guard:** fail safe when Jev's answer is missing, malformed or unavailable ([fe6f66b](https://github.com/CMaintz/jev-tools/commit/fe6f66b202aa2de502259d865d269c0cf182d092))
+
 ## [1.0.0] - 2026-09-23
 
 First stable release — a framework-agnostic LLM tool-call guardrail powered by TypeSafe AI's Jev.

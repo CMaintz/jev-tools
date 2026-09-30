@@ -8,6 +8,16 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 
 - Default model is now `jev-latest` (was the pinned `jev-1.13.0`), tracking the recommended model. Set `model:` in config to pin a version for reproducibility.
 
+## [1.0.1](https://github.com/CMaintz/jev-tools/compare/jev-triage-v1.0.0...jev-triage-v1.0.1) (2026-09-30)
+
+
+### Bug Fixes
+
+* **core:** time out hung requests and validate Jev responses ([ea928da](https://github.com/CMaintz/jev-tools/commit/ea928da24281ab2bd1177bd47cfd6d268aea2681))
+* **triage:** await the job summary write ([823b0fc](https://github.com/CMaintz/jev-tools/commit/823b0fc3a009085ff9ef973bfa0383895948b128))
+* **triage:** run the Action on node24 ([aa866c3](https://github.com/CMaintz/jev-tools/commit/aa866c399da05a0296da5a2d55057f33726c1f66))
+* **triage:** update @actions/core to 3 and @actions/github to 9 ([3de1b70](https://github.com/CMaintz/jev-tools/commit/3de1b7001da264b3de1ee004ce79f5c3c9487bae))
+
 ## [1.0.0] - 2026-09-24
 
 First stable release — Jev-powered GitHub issue triage: per-issue, backlog sweep, LLM escalation, and duplicate detection.

@@ -1,6 +1,6 @@
 {
   "name": "@cmaintz/jev-triage",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "GitHub issue triage Action powered by TypeSafe AI Jev, with confidence-gated escalation.",
   "license": "MIT",
   "author": "Christoffer Maintz",
