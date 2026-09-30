@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { decide } from '../src/core/decide.js';
 import { noul, score } from '../src/policy.js';
 import type { GuardPolicy } from '../src/policy.js';
-import type { Answer } from '../src/providers/jev-provider.js';
+import type { Answer } from '@cmaintz/jev-core';
 
 const policy: GuardPolicy = {
   dimensions: {

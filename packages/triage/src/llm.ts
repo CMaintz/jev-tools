@@ -1,5 +1,4 @@
-import type { Answer, Question } from './providers/jev-provider.js';
-import { postJson } from './providers/http.js';
+import { postJson, type Answer, type Question } from '@cmaintz/jev-core';
 
 export interface LlmEscalation {
   answers: Record<string, Answer>;

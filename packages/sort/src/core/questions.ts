@@ -1,4 +1,4 @@
-import type { Question } from '../providers/jev-provider.js';
+import type { Question } from '@cmaintz/jev-core';
 
 /** Library helpers to declare questions (the Jev question shapes). */
 export const choice = (options: Record<string, string>, instructions = ''): Question => ({

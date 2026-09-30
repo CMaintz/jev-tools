@@ -1,4 +1,4 @@
-import type { JevProvider, Question } from './providers/jev-provider.js';
+import type { JevProvider, Question } from '@cmaintz/jev-core';
 import type { TriageConfig } from './config.js';
 
 export interface DedupeCandidate {

@@ -18,7 +18,6 @@ export { shellPolicy, filesystemPolicy, sqlPolicy, paymentsPolicy } from './pres
 
 export type { Decision } from './core/decide.js';
 
-// Shared provider port (verified against docs.typesafe.ai/api).
-export { TypeSafeProvider } from './providers/typesafe.js';
-export { CloudflareProvider } from './providers/cloudflare.js';
-export type { JevProvider } from './providers/jev-provider.js';
+// Shared provider port, re-exported from @cmaintz/jev-core.
+export { TypeSafeProvider, CloudflareProvider } from '@cmaintz/jev-core';
+export type { JevProvider } from '@cmaintz/jev-core';

@@ -23,6 +23,7 @@
     "test": "vitest run --root ../.. --project @cmaintz/jev-triage"
   },
   "dependencies": {
+    "@cmaintz/jev-core": "^0.1.0",
     "@actions/core": "^1.11.1",
     "@actions/github": "^6.0.0",
     "js-yaml": "^4.1.0"

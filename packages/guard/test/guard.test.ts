@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { guard } from '../src/guard.js';
 import { noul, score } from '../src/policy.js';
 import type { GuardPolicy } from '../src/policy.js';
-import type { Answer, JevProvider } from '../src/providers/jev-provider.js';
+import type { Answer, JevProvider } from '@cmaintz/jev-core';
 
 const policy: GuardPolicy = {
   dimensions: {

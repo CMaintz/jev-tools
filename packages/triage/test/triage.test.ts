@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { triageBacklog, triageIssue, type GitHubPort, type IssueRef, type TriageDeps } from '../src/triage.js';
 import type { TriageConfig } from '../src/config.js';
-import type { Answer, JevProvider } from '../src/providers/jev-provider.js';
+import type { Answer, JevProvider } from '@cmaintz/jev-core';
 import type { LlmEscalator } from '../src/llm.js';
 
 const baseConfig: TriageConfig = {

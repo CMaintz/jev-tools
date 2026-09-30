@@ -1,6 +1,6 @@
 import { load } from 'js-yaml';
 import { choice, noul, score } from './core/questions.js';
-import type { Question } from './providers/jev-provider.js';
+import type { Question } from '@cmaintz/jev-core';
 
 type ChoiceCfg = { kind: 'choice'; instructions?: string; options: Record<string, string> };
 type ScoreCfg = { kind: 'score'; instructions?: string; levels: string[] };

@@ -1,4 +1,4 @@
-import type { JevProvider } from './providers/jev-provider.js';
+import type { JevProvider } from '@cmaintz/jev-core';
 import type { GuardPolicy, Readout, ToolCall, Verdict } from './policy.js';
 import { buildState } from './core/state.js';
 import { buildQuestions } from './core/questions.js';

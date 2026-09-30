@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { answersToColumns } from '../src/core/columns.js';
-import type { Answer } from '../src/providers/jev-provider.js';
+import type { Answer } from '@cmaintz/jev-core';
 
 describe('answersToColumns', () => {
   it('flattens answers and takes the min gated confidence', () => {

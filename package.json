@@ -6,6 +6,7 @@
   "author": "Christoffer Maintz",
   "type": "module",
   "workspaces": [
+    "packages/core",
     "packages/guard",
     "packages/triage",
     "packages/sort"

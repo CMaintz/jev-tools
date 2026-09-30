@@ -1,4 +1,4 @@
-import type { Answer } from './providers/jev-provider.js';
+import type { Answer } from '@cmaintz/jev-core';
 
 /** A proposed tool call to vet before execution. */
 export interface ToolCall {

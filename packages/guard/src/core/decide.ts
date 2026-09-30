@@ -1,4 +1,4 @@
-import type { Answer } from '../providers/jev-provider.js';
+import type { Answer } from '@cmaintz/jev-core';
 import type { GuardPolicy, Readout, Verdict } from '../policy.js';
 
 export interface Decision {

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { buildEscalationPrompt, OpenAiEscalator, parseLlmAnswers } from '../src/llm.js';
-import type { Question } from '../src/providers/jev-provider.js';
+import type { Question } from '@cmaintz/jev-core';
 
 const questions: Record<string, Question> = {
   type: { type: 'choice', instructions: 'category', criteria: { bug: 'a defect', feature: 'new' } },

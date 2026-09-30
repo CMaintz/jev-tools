@@ -7,9 +7,7 @@ import { parseConfig, type SortConfig } from './config.js';
 import { parseQuestions } from './core/questions.js';
 import { parseEscalate } from './core/escalate.js';
 import { csvHeader, rowFromCells, splitCsvLine, toCsvLine } from './csv.js';
-import { TypeSafeProvider } from './providers/typesafe.js';
-import { CloudflareProvider } from './providers/cloudflare.js';
-import type { JevProvider, Question } from './providers/jev-provider.js';
+import { CloudflareProvider, TypeSafeProvider, type JevProvider, type Question } from '@cmaintz/jev-core';
 
 type Row = Record<string, unknown>;
 

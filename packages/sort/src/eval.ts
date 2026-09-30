@@ -1,5 +1,5 @@
 import { answersToColumns } from './core/columns.js';
-import type { JevProvider, Question } from './providers/jev-provider.js';
+import type { JevProvider, Question } from '@cmaintz/jev-core';
 
 export interface EvalReport {
   total: number;

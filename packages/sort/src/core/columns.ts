@@ -1,4 +1,4 @@
-import type { Answer } from '../providers/jev-provider.js';
+import type { Answer } from '@cmaintz/jev-core';
 
 export interface Columns {
   columns: Record<string, string | number>;

@@ -3,7 +3,7 @@ import { parseConfig } from '../src/config.js';
 import { buildState } from '../src/core/state.js';
 import { buildQuestions } from '../src/core/questions.js';
 import { decide } from '../src/core/decide.js';
-import { TypeSafeProvider } from '../src/providers/typesafe.js';
+import { TypeSafeProvider } from '@cmaintz/jev-core';
 
 // Runs only when JEV_API_KEY is set (via `node --env-file=.env`); skipped otherwise,
 // so `mise run gate` stays green without a key.

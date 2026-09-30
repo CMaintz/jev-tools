@@ -1,5 +1,5 @@
 import type { GuardPolicy } from '../policy.js';
-import type { Question } from '../providers/jev-provider.js';
+import type { Question } from '@cmaintz/jev-core';
 
 /** Translate policy dimensions into one batched set of Jev questions. Pure. */
 export function buildQuestions(policy: GuardPolicy): Record<string, Question> {

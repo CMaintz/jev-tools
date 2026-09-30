@@ -2,9 +2,7 @@ import { readFile } from 'node:fs/promises';
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { parseConfig } from './config.js';
-import { CloudflareProvider } from './providers/cloudflare.js';
-import { TypeSafeProvider } from './providers/typesafe.js';
-import type { JevProvider } from './providers/jev-provider.js';
+import { CloudflareProvider, TypeSafeProvider, type JevProvider } from '@cmaintz/jev-core';
 import { OpenAiEscalator, type LlmEscalator } from './llm.js';
 import {
   triageBacklog,

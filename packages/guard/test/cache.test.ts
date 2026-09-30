@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createCache, keyOf } from '../src/cache.js';
 import { guard, type GuardResult } from '../src/guard.js';
 import { noul, type GuardPolicy, type Verdict } from '../src/policy.js';
-import type { Answer, JevProvider } from '../src/providers/jev-provider.js';
+import type { Answer, JevProvider } from '@cmaintz/jev-core';
 
 const mk = (verdict: Verdict = 'allow'): GuardResult => ({ verdict, shortCircuited: false, readouts: {}, reasons: [] });
 

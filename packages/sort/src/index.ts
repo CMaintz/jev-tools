@@ -1,7 +1,7 @@
 import { mapPool } from './map.js';
 import { answersToColumns } from './core/columns.js';
 import { RateLimiter } from './rate-limit.js';
-import type { JevProvider, Question } from './providers/jev-provider.js';
+import { stableStringify, type JevProvider, type Question } from '@cmaintz/jev-core';
 
 export { choice, noul, score, parseQuestion, parseQuestions } from './core/questions.js';
 export { parseEscalate } from './core/escalate.js';
@@ -13,9 +13,8 @@ export { parseConfig } from './config.js';
 export type { SortConfig } from './config.js';
 export { evaluate, matches } from './eval.js';
 export type { EvalReport } from './eval.js';
-export { TypeSafeProvider } from './providers/typesafe.js';
-export { CloudflareProvider } from './providers/cloudflare.js';
-export type { JevProvider, Answer, Question } from './providers/jev-provider.js';
+export { TypeSafeProvider, CloudflareProvider } from '@cmaintz/jev-core';
+export type { JevProvider, Answer, Question } from '@cmaintz/jev-core';
 
 export interface ClassifyOptions {
   provider: JevProvider;
@@ -44,15 +43,6 @@ type Cached = {
   usage?: { input_tokens: number; output_tokens: number };
 };
 
-function stableStringify(value: unknown): string {
-  if (value === null || typeof value !== 'object') return JSON.stringify(value) ?? 'null';
-  if (Array.isArray(value)) return `[${value.map(stableStringify).join(',')}]`;
-  const obj = value as Record<string, unknown>;
-  return `{${Object.keys(obj)
-    .sort()
-    .map((k) => `${JSON.stringify(k)}:${stableStringify(obj[k])}`)
-    .join(',')}}`;
-}
 
 /**
  * Stream rows through Jev, one batched call each, yielding typed columns + a row

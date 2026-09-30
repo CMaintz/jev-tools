@@ -1,4 +1,4 @@
-import type { JevProvider } from '../providers/jev-provider.js';
+import type { JevProvider } from '@cmaintz/jev-core';
 import type { GuardPolicy, ToolCall } from '../policy.js';
 import { guard, type GuardOptions } from '../guard.js';
 import { enforce, type EnforceOptions } from '../enforce.js';

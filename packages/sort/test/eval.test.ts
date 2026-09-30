@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { evaluate, matches } from '../src/eval.js';
 import { parseQuestions } from '../src/core/questions.js';
-import type { Answer, JevProvider } from '../src/providers/jev-provider.js';
+import type { Answer, JevProvider } from '@cmaintz/jev-core';
 
 describe('matches', () => {
   const q = parseQuestions(['team:choice(a,b)', 'urgent:noul', 'sev:score(lo,hi)']);

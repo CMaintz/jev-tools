@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { buildDedupeQuestion, findDuplicate } from '../src/dedupe.js';
 import type { TriageConfig } from '../src/config.js';
-import type { Answer, JevProvider } from '../src/providers/jev-provider.js';
+import type { Answer, JevProvider } from '@cmaintz/jev-core';
 
 const config: TriageConfig = {
   provider: 'typesafe',

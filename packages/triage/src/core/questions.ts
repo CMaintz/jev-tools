@@ -1,5 +1,5 @@
 import type { TriageConfig } from '../config.js';
-import type { Question } from '../providers/jev-provider.js';
+import type { Question } from '@cmaintz/jev-core';
 
 /**
  * Translate the declarative config into a batch of Jev questions.

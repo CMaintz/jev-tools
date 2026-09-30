@@ -3,7 +3,7 @@ import { jevGuardMiddleware } from '../src/adapters/langchain.js';
 import { GuardBlockedError } from '../src/enforce.js';
 import { noul } from '../src/policy.js';
 import type { GuardPolicy } from '../src/policy.js';
-import type { Answer, JevProvider } from '../src/providers/jev-provider.js';
+import type { Answer, JevProvider } from '@cmaintz/jev-core';
 
 const policy: GuardPolicy = {
   dimensions: { destructive: noul('permanently deletes data?') },

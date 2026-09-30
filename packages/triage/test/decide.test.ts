@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { decide } from '../src/core/decide.js';
 import type { TriageConfig } from '../src/config.js';
-import type { Answer } from '../src/providers/jev-provider.js';
+import type { Answer } from '@cmaintz/jev-core';
 
 const config: TriageConfig = {
   provider: 'cloudflare',

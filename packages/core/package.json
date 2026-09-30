@@ -1,15 +1,15 @@
 {
-  "name": "@cmaintz/jev-guard",
-  "version": "1.0.0",
-  "description": "Framework-agnostic guardrail that vets an LLM agent's proposed tool calls through TypeSafe AI Jev before they execute.",
+  "name": "@cmaintz/jev-core",
+  "version": "0.1.0",
+  "description": "Shared TypeSafe AI Jev client for the jev-tools packages: question/answer types, TypeSafe + Cloudflare providers, retrying HTTP.",
   "license": "MIT",
   "author": "Christoffer Maintz",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/CMaintz/jev-tools.git",
-    "directory": "packages/guard"
+    "directory": "packages/core"
   },
-  "homepage": "https://github.com/CMaintz/jev-tools/tree/main/packages/guard#readme",
+  "homepage": "https://github.com/CMaintz/jev-tools/tree/main/packages/core#readme",
   "bugs": {
     "url": "https://github.com/CMaintz/jev-tools/issues"
   },
@@ -19,14 +19,6 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    },
-    "./langchain": {
-      "types": "./dist/adapters/langchain.d.ts",
-      "import": "./dist/adapters/langchain.js"
-    },
-    "./vercel": {
-      "types": "./dist/adapters/vercel-ai.d.ts",
-      "import": "./dist/adapters/vercel-ai.js"
     }
   },
   "main": "./dist/index.js",
@@ -40,24 +32,17 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --root ../.. --project @cmaintz/jev-guard",
+    "test": "vitest run --root ../.. --project @cmaintz/jev-core",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
     "jev",
     "typesafe",
     "llm",
-    "agent",
-    "guardrail",
-    "tool-calls",
-    "safety",
-    "langchain"
+    "client"
   ],
   "publishConfig": {
     "access": "public",
     "provenance": true
-  },
-  "dependencies": {
-    "@cmaintz/jev-core": "^0.1.0"
   }
 }

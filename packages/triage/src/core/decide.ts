@@ -1,5 +1,5 @@
 import type { TriageConfig } from '../config.js';
-import type { Answer } from '../providers/jev-provider.js';
+import type { Answer } from '@cmaintz/jev-core';
 
 /**
  * The heart of the Action, and the reason the core is a pure function: given Jev's answers

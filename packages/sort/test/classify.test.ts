@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { classify, RateLimiter } from '../src/index.js';
 import { parseQuestions } from '../src/core/questions.js';
 import type { Answer, ClassifiedRow } from '../src/index.js';
-import type { JevProvider } from '../src/providers/jev-provider.js';
+import type { JevProvider } from '@cmaintz/jev-core';
 
 const provider = (answers: Record<string, Answer>): JevProvider => ({
   evaluate: async () => ({ model: 't', answers, usage: { input_tokens: 10, output_tokens: 2 } }),

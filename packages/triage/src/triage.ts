@@ -2,7 +2,7 @@ import { buildState } from './core/state.js';
 import { buildQuestions } from './core/questions.js';
 import { decide } from './core/decide.js';
 import { findDuplicate, type DedupeCandidate } from './dedupe.js';
-import type { JevProvider } from './providers/jev-provider.js';
+import type { JevProvider } from '@cmaintz/jev-core';
 import type { LlmEscalator } from './llm.js';
 import type { TriageConfig } from './config.js';
 
