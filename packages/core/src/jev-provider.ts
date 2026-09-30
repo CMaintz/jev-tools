@@ -1,9 +1,8 @@
 /**
- * The Jev provider port. The triage engine depends only on this interface,
- * never on a concrete backend (Cloudflare Workers AI vs. TypeSafe first-party).
+ * The Jev provider port. jev-guard, jev-triage and jev-sort depend only on this
+ * interface, never on a concrete backend (Cloudflare Workers AI vs. TypeSafe first-party).
  *
- * Shapes verified against https://docs.typesafe.ai/api and Cloudflare's model page (2026-09).
- * Not yet exercised against a live key.
+ * Shapes follow https://docs.typesafe.ai/api and Cloudflare's model page (checked 2026-09).
  */
 
 type ChoiceQuestion = {
