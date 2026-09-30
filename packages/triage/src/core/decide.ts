@@ -5,7 +5,8 @@ import type { Answer } from '@cmaintz/jev-core';
  * The heart of the Action, and the reason the core is a pure function: given Jev's answers
  * and the config, decide what to apply. No network, no Octokit — 100% unit-testable.
  *
- * The invariant: nothing is applied on low confidence. Jev is ~68% accurate; the confidence
+ * The invariant: nothing is applied on low confidence. Jev is a first-pass judge (67.8%
+ * agreement with frontier-model labels on https://evals.typesafe.ai/), so the confidence
  * gate is the design, not a nicety.
  */
 

@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## Unreleased (before the move to jev-tools)
 
 ### Changed
 
@@ -29,12 +29,5 @@ First stable release — a framework-agnostic LLM tool-call guardrail powered by
   (`guardVercelTool` wrapping a Vercel AI SDK tool's `execute`).
 - **Policy presets:** `shellPolicy` / `filesystemPolicy` / `sqlPolicy` / `paymentsPolicy`.
 - **Verdict caching:** `createCache({ ttlMs, max })` — identical repeat calls skip the Jev round-trip (`fromCache`).
-- **Shared `JevProvider` port** (TypeSafe + Cloudflare, `postJson` backoff); animated README demo;
+- **Shared `JevProvider` port** (TypeSafe + Cloudflare, `postJson` backoff);
   onboarded onto the Foundry gate.
-
-### Verified
-
-- `mise run gate` (lint → typecheck → test → audit) green; 29 unit tests.
-- Adapter APIs confirmed against current LangChain JS + Vercel AI SDK docs — not guessed.
-- **Live-validated against the real Jev API:** `rm -rf` → block (destructive 0.97), `ls` → allow;
-  ~360–500 ms/call. Wire shape + full pipeline confirmed end-to-end.

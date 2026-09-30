@@ -1,7 +1,7 @@
 {
   "name": "@cmaintz/jev-sort",
   "version": "1.0.0",
-  "description": "jq for judgment — stream rows through TypeSafe AI Jev and get typed classification/score columns + confidence, at pennies per 10k.",
+  "description": "Stream JSONL/CSV rows through TypeSafe AI Jev and get typed classification/score columns plus a confidence field.",
   "license": "MIT",
   "author": "Christoffer Maintz",
   "repository": {

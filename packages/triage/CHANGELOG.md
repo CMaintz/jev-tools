@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## Unreleased (before the move to jev-tools)
 
 ### Changed
 
@@ -26,12 +26,6 @@ First stable release — Jev-powered GitHub issue triage: per-issue, backlog swe
 - `GitHubPort` seam keeps Octokit at the edge so the orchestrator (`triageIssue` / `triageBacklog`) is
   fully unit-tested; Step Summary reports labels, escalations, duplicates, skipped, tokens, and cost.
 - Shared Jev provider port (TypeSafe + Cloudflare, `postJson` backoff); onboarded onto the Foundry gate.
-
-### Verified
-
-- Wire shape confirmed against [docs.typesafe.ai/api](https://docs.typesafe.ai/api) + Cloudflare's model page;
-  `mise run gate` green; **28 unit tests** (+1 skipped live), coverage 99% lines / 86% branches. `dist/` bundled.
-- **Live-validated against the real Jev API** (`test/live.test.ts`): a real bug report classified end-to-end.
 
 ### Known issues
 

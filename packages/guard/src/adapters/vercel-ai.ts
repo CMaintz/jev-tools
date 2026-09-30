@@ -19,7 +19,7 @@ export interface GuardVercelOptions extends GuardOptions, EnforceOptions {}
  * Wrap a Vercel AI SDK tool so its `execute` is guarded, preserving every other field
  * (description, inputSchema). A blocked call throws `GuardBlockedError` before `execute` runs.
  *
- *   import { guardVercelTool } from "jev-guard/vercel";
+ *   import { guardVercelTool } from "@cmaintz/jev-guard/vercel";
  *   const safeBash = guardVercelTool("bash", bashTool, policy, provider);
  */
 export function guardVercelTool<T extends VercelTool>(

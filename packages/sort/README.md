@@ -1,58 +1,63 @@
-# jev-sort
+# @cmaintz/jev-sort
 
-**jq for judgment** — stream rows through [TypeSafe AI's Jev](https://typesafe.ai/) and get **typed classification/score columns + a confidence field**, at pennies per 10k rows.
+Stream rows through [TypeSafe AI's Jev](https://typesafe.ai/) and get typed classification/score columns plus a `_confidence` field. Each row is one Jev request carrying all your questions.
+
+> Not yet published to npm. See the [root README](../../README.md#install) to build from source. After `npm run build`, the CLI is at `packages/sort/dist/cli.js`.
 
 ```bash
-cat tickets.jsonl | jev-sort \
-  -q 'team:choice(billing,tech,sales)' -q 'urgent:noul' \
-  --escalate 'conf<0.6' --review-out review.jsonl > out.jsonl
-
-{"id":1,"team":"billing","urgent":0.95,"_confidence":0.87}
-...
-10000 rows · $0.11 · 3m12s · 612 flagged -> review.jsonl
+export JEV_API_KEY=...
+jev-sort -q 'team:choice(billing,tech,sales)' -q 'urgent:noul' \
+  --escalate 'conf<0.6' --review-out review.jsonl --reject-out rejects.jsonl \
+  < tickets.jsonl > out.jsonl
 ```
 
-## When to use it (honestly)
+Each output line is the input row plus one column per question: the chosen label for `choice`, the numeric score for `score`, the yes-probability for `noul`. Then `_confidence`, the lowest choice/score confidence in the row. For example (illustrative values):
 
-jev-sort earns its place at **scale** — 10k–1M rows, where running an LLM per row is the whole problem. At ~$0.00001/row and ~100 ms, "classify 10k rows for pennies" becomes true and the job finishes in minutes. **Below a few thousand rows, a one-off LLM script or plain code is simpler — use those.** And if the rule is crisp (a regex or keyword match), use plain code: jev-sort is for judgments too fuzzy to regex but bounded enough not to need prose.
+```json
+{ "id": 1, "text": "I was charged twice", "team": "billing", "urgent": 0.93, "_confidence": 0.87 }
+```
+
+A summary goes to stderr: rows written, input tokens with an estimated cost at TypeSafe's list price ($0.042 per million input tokens), elapsed time, and flagged/rejected counts.
+
+## When to use it
+
+It pays off on large jobs: thousands of rows or more, where calling an LLM per row is the expensive part. For a few hundred rows, a one-off LLM script is simpler. If the rule is crisp (a regex or keyword match), plain code beats both.
 
 ## CLI
 
-- Questions inline: `-q 'name:choice(a,b,c)'` · `-q 'name:noul'` · `-q 'name:score(low,mid,high)'`, **or** a richer `--config jev-sort.yml` (full `instructions` + `criteria` per question — what steers Jev well).
-- `--escalate 'conf<0.6'` splits confident rows (stdout) from uncertain ones (`--review-out FILE`, JSONL); a row is confident only if **every** choice/score answer clears the bar. Exits non-zero if any rows were flagged (opt out with `--allow-review`) so it's pipeline/CI-safe.
-- `--format jsonl|csv` (input + stdout) · `--concurrency N` (default 8) · `--rate PER_MINUTE` (pace under Jev's req/min ceiling) · `--dedupe` (skip identical states) · `--provider typesafe|cloudflare` · `--model jev-latest`
-- `--eval labeled.jsonl` measures agreement per question against a hand-labeled sample (truth columns stripped from the state) — run it **before** a big job. The honest antidote to ~68% accuracy.
-- Input on stdin; each row becomes the Jev `state`. Set `JEV_API_KEY` in the environment.
+Run `jev-sort --help` for the full list.
+
+- **Questions:** inline `-q 'name:choice(a,b,c)'` · `-q 'name:noul'` · `-q 'name:score(low,mid,high)'`, or `--config jev-sort.yml` for full instructions and criteria per question ([example](examples/jev-sort.yml)).
+- **Escalation:** `--escalate 'conf<0.6'` sends rows below the bar to `--review-out FILE` (JSONL) instead of stdout. A row counts as confident only if every choice/score answer clears the bar. Exit code 2 if any rows were flagged; `--allow-review` makes that 0.
+- **Failures:** a row whose Jev call fails, or that comes back without an answer to every question, is written to `--reject-out FILE` (JSONL, the row plus `_error`). So is an input line that isn't a JSON object, with `_line` and `_raw`. The stream keeps going. Without `--reject-out`, rejects are reported on stderr. Exit code 3 if anything was rejected.
+- **Throughput:** `--concurrency N` (positive integer, default 8) · `--rate N` (max requests per minute) · `--dedupe` (identical rows reuse one answer). Output order follows completion, not input order.
+- **Formats:** `--format jsonl|csv` for input and stdout. CSV fields can't contain embedded newlines.
+- **Provider:** `--provider typesafe|cloudflare` · `--model jev-latest`. Set `JEV_API_KEY`, plus `CLOUDFLARE_ACCOUNT_ID` for Cloudflare.
+- **Measure first:** `--eval labeled.jsonl` reports per-question agreement against a hand-labeled sample (truth columns are stripped from the state), so you know the accuracy on your data before a large run.
 
 ## Library
 
 ```ts
-import { classify, choice, noul, score, TypeSafeProvider } from 'jev-sort';
+import { choice, classify, isFailed, noul, TypeSafeProvider } from '@cmaintz/jev-sort';
 
 const provider = new TypeSafeProvider(process.env.JEV_API_KEY!);
-for await (const r of classify(
-  rows,
-  { team: choice({ billing: '…', tech: '…' }), urgent: noul('conveys urgency') },
-  {
-    provider,
-    escalateBelow: 0.6,
-  },
-)) {
-  // r.columns, r.confidence, r.escalated
+const questions = {
+  team: choice({ billing: 'payment or charge issues', tech: 'bugs, errors, outages' }, 'Which team?'),
+  urgent: noul('Does the message convey urgency?'),
+};
+
+for await (const r of classify(rows, questions, { provider, escalateBelow: 0.6, concurrency: 8 })) {
+  if (isFailed(r)) console.error(r.row, r.error);
+  else console.log(r.columns, r.confidence, r.escalated);
 }
 ```
 
-## Honest limitations
+## Limitations
 
-- **Value is scale-gated** (see above) — this is the most conditional of the [jev-tools](https://github.com/CMaintz?tab=repositories).
-- **~68% accuracy** → treat output as _pre-labels_: spot-check, and route low-confidence to humans.
-- **Text-only**; each row must fit Jev's context (~32k). Long documents need a summarize-first step (an LLM job, not Jev's).
-- **No rationale** → poor fit where you need an audit trail of _why_ a row got its label.
-- **Can't count / do date-number arithmetic** → aggregation and math stay in downstream code.
-- **Needs a Jev key** — `JEV_API_KEY` (sign up at [TypeSafe](https://typesafe.ai/); Cloudflare Workers AI also works).
-
-## Status
-
-**v1.0** — JSONL + CSV I/O, inline `-q` **and** YAML config, `_confidence`, `--escalate` split, bounded-concurrency streaming (`classify`), `--dedupe`, a `--rate` limiter, and the `--eval` accuracy harness. 23 tests, passes the [Foundry](https://github.com/CMaintz/foundry) gate. Deferred to v1.x (see the [spec](../SPECS/jev-sort-cli.md)): `--resume` checkpointing, glob/RSS sources, sampling + cost preflight, and a live-key end-to-end run.
+- **Accuracy:** on [TypeSafe's workflow evals](https://evals.typesafe.ai/) Jev scores 67.8% agreement with frontier-model reference labels. Treat output as pre-labels, spot-check it, and route low confidence to people. `--eval` measures it on your data.
+- **Text only**, and each row must fit Jev's request limit (32k tokens for state plus the longest question; [models page](https://docs.typesafe.ai/models)). Long documents need summarizing first.
+- **No rationale:** a poor fit when you need an audit trail of why a row got its label.
+- **No counting or date arithmetic:** do aggregation downstream.
+- Not yet implemented: resumable runs, sampling, and a cost preflight.
 
 MIT © Christoffer Maintz

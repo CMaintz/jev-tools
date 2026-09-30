@@ -1,5 +1,5 @@
 name: 'Jev Triage'
-description: 'Fast, near-free issue triage powered by TypeSafe AI Jev, with confidence-gated escalation to a human or an LLM.'
+description: 'GitHub issue triage powered by TypeSafe AI Jev, with confidence-gated escalation to a human or an LLM.'
 author: 'Christoffer Maintz'
 branding:
   icon: 'filter'

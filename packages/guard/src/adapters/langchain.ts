@@ -21,7 +21,7 @@ export interface JevGuardMiddlewareOptions extends GuardOptions, EnforceOptions 
  * LangChain's own `createMiddleware`:
  *
  *   import { createMiddleware } from "langchain";
- *   import { jevGuardMiddleware } from "jev-guard/langchain";
+ *   import { jevGuardMiddleware } from "@cmaintz/jev-guard/langchain";
  *   const guard = createMiddleware(jevGuardMiddleware(policy, provider));
  *   // createAgent({ ..., middleware: [guard] })
  *

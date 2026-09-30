@@ -24,7 +24,7 @@ export function matches(predicted: string | number, truth: unknown, q: Question)
 /**
  * Run Jev against a hand-labeled sample and report agreement per question. The truth
  * columns (the question names) are stripped from the state, so they aren't leaked to
- * Jev — the honest antidote to ~68% accuracy: measure before committing to a big run.
+ * Jev. Measure agreement on your own data before committing to a big run.
  */
 export async function evaluate(
   labeled: Record<string, unknown>[],

@@ -1,17 +1,23 @@
-# jev-guard
+# @cmaintz/jev-guard
 
-**A guardrail that vets an LLM agent's tool calls through [TypeSafe AI's Jev](https://typesafe.ai/) before they run** — so an autonomous agent can't `rm -rf` your box on a bad hunch.
+A guardrail that sends an LLM agent's proposed tool call to [TypeSafe AI's Jev](https://typesafe.ai/) before it runs, and returns `allow`, `block` or `hold`.
 
-![jev-guard blocking a destructive tool call and allowing a safe one](demo/demo.svg)
+Each guarded call costs one Jev request that asks all of the policy's risk questions at once. Your policy turns the typed answers into a verdict in plain TypeScript. Uncertainty never resolves to `allow`:
 
-Every proposed tool call goes through one near-free Jev check (~70–500 ms) that returns typed risk decisions + calibrated confidence. Safe calls **allow**, clearly destructive ones **block**, uncertain ones **hold** for a human. Because Jev is ~free, you can afford to guard _every_ call — and because it's confidence-aware, uncertainty **fails safe**.
+- a score/choice answer below the `escalateBelow` confidence floor turns `allow` into `hold`;
+- a missing, mistyped or malformed answer turns `allow` into `hold`;
+- a provider error (timeout, HTTP failure, invalid response) returns `hold` with the error, and that result is not cached.
+
+`enforce` / `wrapTool` / the adapters throw `GuardBlockedError` on `block`, and on `hold` unless an `onHold` handler approves.
+
+> Not yet published to npm. See the [root README](../../README.md#install) to build from source.
 
 ```ts
-import { guard, score, noul, TypeSafeProvider } from 'jev-guard';
+import { guard, noul, score, TypeSafeProvider, type GuardPolicy } from '@cmaintz/jev-guard';
 
 const provider = new TypeSafeProvider(process.env.JEV_API_KEY!);
 
-const policy = {
+const policy: GuardPolicy = {
   dimensions: {
     risk: score(
       ['none', 'local-reversible', 'local-destructive', 'external-or-irreversible'],
@@ -25,84 +31,83 @@ const policy = {
     if (Number(r.exfiltrates?.value) >= 0.7) return 'hold';
     return 'allow';
   },
-  escalateBelow: 0.8, // low confidence on a risk dimension → fail safe (hold)
-  perTool: { read_file: 'allow' }, // cheap tools bypass the round-trip
+  escalateBelow: 0.8, // score/choice answers below this confidence → hold
+  perTool: { read_file: 'allow' }, // decided without a Jev call
 };
 
-const { verdict } = await guard(
+const result = await guard(
   { tool: 'bash', arguments: { cmd: 'rm -rf /var/lib/postgresql/data' }, task: 'Clear the build cache' },
   policy,
   provider,
-  { audit: (e) => console.log(e) },
+  { audit: (entry) => console.log(entry) },
 );
-// → 'block'
+// result.verdict: 'allow' | 'block' | 'hold'; result.reasons explains any fail-safe
 ```
 
-## Why Jev (not a regex denylist or a second LLM)
+## Why Jev
 
-A denylist can't tell "delete the temp cache" from "delete prod". A second LLM is slow, costly, and hands you prose to parse. Jev is a semantic check that's cheap enough to run on every call and returns a _typed value you branch on_ plus a _confidence you gate on_.
-
-## Status
-
-**v1.0** — `guard()` + pure core + shared provider port (verified against [docs.typesafe.ai/api](https://docs.typesafe.ai/api)), the **enforcement layer** (`enforce` / `wrapTool` / `observe` / `onHold`), **LangChain + Vercel AI SDK adapters**, **policy presets**, and **verdict caching** (`createCache` — identical repeat calls skip the round-trip). 29 tests, passes the [Foundry](https://github.com/CMaintz/foundry) gate, and **validated against the real Jev API** (`rm -rf` → block, `ls` → allow; ~360–500 ms/call). See the [full spec](../SPECS/jev-guard.md).
+A regex denylist can't tell "delete the temp cache" from "delete prod". A second LLM reviewing every call adds latency and cost and returns prose you have to parse. Jev returns a typed value to branch on and a confidence to gate on, at a price (TypeSafe quotes $0.042 per million input tokens, output free) that makes checking every call affordable.
 
 ## Framework adapters
 
-Both adapters are **dependency-free** (structural types — bring your own framework version) and exposed as subpaths. They reuse the same `guard`/`enforce` core, so a blocked call throws `GuardBlockedError` before the tool runs.
+Both adapters use structural types, so they carry no dependency on the framework. Bring your own version.
 
-**LangChain JS** — wraps the agent's `wrapToolCall` middleware hook:
+**LangChain JS**, via the agent's `wrapToolCall` middleware hook:
 
 ```ts
 import { createMiddleware } from 'langchain';
-import { jevGuardMiddleware } from 'jev-guard/langchain';
+import { jevGuardMiddleware } from '@cmaintz/jev-guard/langchain';
 
-const guardMw = createMiddleware(jevGuardMiddleware(policy, provider, { onHold: humanApproval }));
+const guardMw = createMiddleware(jevGuardMiddleware(policy, provider, { onHold: askHuman }));
 // createAgent({ ..., middleware: [guardMw] })
 ```
 
-**Vercel AI SDK** — wraps a tool's `execute`, preserving `description`/`inputSchema`:
+**Vercel AI SDK**, wrapping a tool's `execute` and keeping `description` / `inputSchema`:
 
 ```ts
-import { guardVercelTool } from 'jev-guard/vercel';
+import { guardVercelTool } from '@cmaintz/jev-guard/vercel';
 
 const safeBash = guardVercelTool('bash', bashTool, policy, provider);
 // streamText({ ..., tools: { bash: safeBash } })
 ```
 
-**Any other framework** — use the framework-agnostic HOF:
+**Anything else:**
 
 ```ts
-import { wrapTool } from 'jev-guard';
+import { wrapTool } from '@cmaintz/jev-guard';
 const safeExecute = wrapTool('bash', bash.execute, policy, provider);
 ```
 
 ## Presets
 
-Skip writing a policy from scratch — start from a preset for the dangerous tool classes and spread to tweak:
+`shellPolicy()` · `filesystemPolicy()` · `sqlPolicy()` · `paymentsPolicy()`. Each blocks clearly dangerous calls, holds borderline ones and allows the rest. A missing or non-numeric readout counts as maximum risk. Spread a preset to tweak it:
 
 ```ts
-import { shellPolicy, sqlPolicy } from 'jev-guard';
+import { shellPolicy, wrapTool } from '@cmaintz/jev-guard';
 
-const safeBash = wrapTool('bash', bash.execute, shellPolicy(), provider);
-const strictShell = { ...shellPolicy(), escalateBelow: 0.9 };
+const strictShell = { ...shellPolicy(), escalateBelow: 0.9, perTool: { echo: 'allow' as const } };
 ```
 
-`shellPolicy` · `filesystemPolicy` · `sqlPolicy` · `paymentsPolicy` — each blocks the clearly-dangerous cases, holds the borderline ones, and allows the rest.
+`escalateBelow` gates score/choice answers only (Jev returns no confidence for a noul). So only `shellPolicy`, which has a score dimension, sets it. The noul-only presets gate through their probability thresholds.
 
-## Honest limitations
+## Caching
 
-- **NOT a security boundary.** ~68% accuracy and a probabilistic model mean a determined prompt-injection can slip through. Keep real sandboxing, least-privilege creds, and allowlists — jev-guard is a cheap semantic layer _on top_, not a replacement.
-- **Latency in the hot path.** It adds one round-trip before each guarded call. Mitigate: allowlist cheap tools (`perTool`), and all risk dimensions ride one batched call.
-- **No rationale.** Jev returns numbers, not "why" — the `audit` sink is mandatory, and a `hold` should surface the inputs to the human.
-- **Text-only / no counting** — keep quantitative limits ("delete > N rows") in code.
+`createCache({ ttlMs, max })` memoizes verdicts for identical calls (same tool, task and arguments, whatever the key order). Pass it as `{ cache }`. Provider failures are never cached.
 
-## Development
+## Limitations
 
-Quality is enforced through [Foundry](https://github.com/CMaintz/foundry)'s six-verb gate:
+- **Not a security boundary.** Jev is probabilistic ([67.8% agreement](https://evals.typesafe.ai/) with frontier-model reference labels on TypeSafe's own evals), and a determined prompt injection can get through. Keep sandboxing, least-privilege credentials and allowlists; this is a cheap semantic layer on top of them.
+- **Latency on the hot path.** Each guarded call waits for one round trip (TypeSafe quotes 70–500 ms). Use `perTool` for cheap, safe tools.
+- **No rationale.** Jev returns numbers, not reasons. Log every verdict through `audit`, and show a `hold`'s inputs to the human deciding it.
+- **No counting.** Keep quantitative limits ("deletes more than N rows") in code.
+
+## Live smoke test
+
+From the repo root (needs `JEV_API_KEY`; see [`.env.example`](.env.example)):
 
 ```bash
-mise run gate   # lint → typecheck → test (coverage floor) → audit
-npm run build   # tsc → dist/ (ESM + d.ts) for publishing
+npm run build
+node --env-file=packages/guard/.env packages/guard/examples/smoke.mjs
 ```
 
 MIT © Christoffer Maintz
