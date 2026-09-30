@@ -1,0 +1,10 @@
+node_modules/
+dist/
+!packages/triage/dist/
+coverage/
+*.log
+.DS_Store
+.env
+.env.local
+.idea/
+.vscode/

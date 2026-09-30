@@ -1,0 +1,36 @@
+# Foundry verb interface (https://github.com/CMaintz/foundry). CI runs the same verbs.
+
+[tools]
+node = "22.14.0"
+
+[env]
+_.path = ["./node_modules/.bin"]
+
+[tasks.fix]
+description = "Auto-fix what is mechanically fixable"
+run = "eslint . --fix"
+
+[tasks.lint]
+description = "Style and smells; non-mutating"
+run = "eslint ."
+
+[tasks.typecheck]
+description = "Static types, every workspace"
+run = "npm run typecheck"
+
+[tasks.test]
+description = "All workspace tests with the coverage floor"
+run = "vitest run --coverage"
+
+[tasks.audit]
+description = "Dependency vulnerabilities (CI Tier 0 adds gitleaks + semgrep)"
+run = "npm audit --audit-level=critical"
+
+[tasks.gate]
+description = "The authoritative composite. Nothing merges without this green."
+run = [
+    "mise run lint",
+    "mise run typecheck",
+    "mise run test",
+    "mise run audit",
+]

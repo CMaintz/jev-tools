@@ -1,4 +1,0 @@
-{
-  "gitignore": true,
-  "ignore": ["**/test/**", "**/demo/**", "**/*.config.*", "**/*.d.ts", "**/package-lock.json", "**/.jscpd/**"]
-}

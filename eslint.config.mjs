@@ -5,7 +5,7 @@ import tseslint from 'typescript-eslint';
 // covers the rest (explicit-any, loose-equality, dead code, non-const). We only
 // add the TS parser so those files parse, and ignore build output.
 export default [
-  { ignores: ['dist/**', 'coverage/**', 'node_modules/**'] },
+  { ignores: ['**/dist/**', '**/coverage/**', '**/node_modules/**'] },
   {
     files: ['**/*.ts'],
     languageOptions: {
