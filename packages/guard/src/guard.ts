@@ -1,4 +1,4 @@
-import type { JevProvider } from '@cmaintz/jev-core';
+import type { JevProvider, JevResponse } from '@cmaintz/jev-core';
 import type { GuardPolicy, Readout, ToolCall, Verdict } from './policy.js';
 import { buildState } from './core/state.js';
 import { buildQuestions } from './core/questions.js';
@@ -14,6 +14,8 @@ export interface GuardResult {
   usage?: { input_tokens: number; output_tokens: number };
   /** true when this verdict was served from the cache rather than a fresh Jev call. */
   fromCache?: boolean;
+  /** set when the provider call failed; the verdict is then a fail-safe `hold`. */
+  error?: string;
 }
 
 export interface GuardOptions {
@@ -61,10 +63,24 @@ export async function guard(
     }
   }
 
-  const { answers, usage } = await provider.evaluate({
-    state: buildState(call),
-    questions: buildQuestions(policy),
-  });
+  let response: JevResponse;
+  try {
+    response = await provider.evaluate({ state: buildState(call), questions: buildQuestions(policy) });
+  } catch (err) {
+    // An unreachable or failing Jev is unknown risk: hold, and don't cache it, so a
+    // transient outage doesn't pin the verdict for the cache TTL.
+    const message = err instanceof Error ? err.message : String(err);
+    const result: GuardResult = {
+      verdict: 'hold',
+      shortCircuited: false,
+      readouts: {},
+      reasons: [`provider error: ${message} → fail-safe hold`],
+      error: message,
+    };
+    opts.audit?.({ ...result, call });
+    return result;
+  }
+  const { answers, usage } = response;
   const { verdict, readouts, reasons } = decide(answers, policy);
   const result: GuardResult = { verdict, shortCircuited: false, readouts, reasons, ...(usage ? { usage } : {}) };
   if (opts.cache && cacheKey !== undefined) opts.cache.set(cacheKey, result);

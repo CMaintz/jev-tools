@@ -10,14 +10,23 @@ const str = (value: string): Readout => ({
 });
 
 describe('presets', () => {
+  it('no preset reads an empty readout set as allow', () => {
+    for (const p of [shellPolicy(), filesystemPolicy(), sqlPolicy(), paymentsPolicy()]) {
+      expect(p.decide({})).not.toBe('allow');
+    }
+  });
+
+
   it('shellPolicy: block destructive+risky, hold exfiltration or high risk, else allow', () => {
     const p = shellPolicy();
     expect(p.decide({ risk: ro(3), destructive: ro(0.9), exfiltrates: ro(0) })).toBe('block');
     expect(p.decide({ risk: ro(1), destructive: ro(0.1), exfiltrates: ro(0.9) })).toBe('hold');
     expect(p.decide({ risk: ro(3), destructive: ro(0.1), exfiltrates: ro(0.1) })).toBe('hold');
     expect(p.decide({ risk: ro(0), destructive: ro(0.1), exfiltrates: ro(0.1) })).toBe('allow');
-    // a non-numeric readout (e.g. a choice) reads as 0 risk → allow, not a crash
-    expect(p.decide({ risk: str('none'), destructive: ro(0.1), exfiltrates: ro(0.1) })).toBe('allow');
+    // a non-numeric or missing readout reads as maximum risk, never as safe
+    expect(p.decide({ risk: str('none'), destructive: ro(0.1), exfiltrates: ro(0.1) })).toBe('hold');
+    expect(p.decide({ destructive: ro(0.1), exfiltrates: ro(0.1) })).toBe('hold');
+    expect(p.decide({ risk: ro(3) })).toBe('block');
   });
 
   it('filesystemPolicy: block destructive+outside, hold destructive OR outside, else allow', () => {

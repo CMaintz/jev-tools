@@ -7,7 +7,10 @@ import { noul, score, type GuardPolicy, type Readout } from './policy.js';
  */
 
 const RISK_LEVELS = ['none', 'local-reversible', 'local-destructive', 'external-or-irreversible'];
-const num = (r: Readout | undefined): number => (typeof r?.value === 'number' ? r.value : 0);
+// A missing or non-numeric readout counts as maximum risk, so a policy never reads
+// "no answer" as "safe". (decide() also holds on missing answers before this runs.)
+const num = (r: Readout | undefined): number =>
+  typeof r?.value === 'number' && Number.isFinite(r.value) ? r.value : Number.POSITIVE_INFINITY;
 
 /** Shell/bash execution — the highest-blast-radius tool class. */
 export function shellPolicy(): GuardPolicy {

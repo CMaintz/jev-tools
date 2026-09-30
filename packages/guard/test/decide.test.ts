@@ -44,3 +44,50 @@ describe('decide', () => {
     expect(d.reasons.join(' ')).toMatch(/fail-safe/);
   });
 });
+
+describe('decide fails safe on missing or malformed answers', () => {
+  const allowAll: GuardPolicy = { ...policy, decide: () => 'allow' };
+  const confidentRisk: Answer = { type: 'score', score: 0.1, confidence: 0.95, probabilities: {} };
+
+  it('holds when a dimension has no answer', () => {
+    const d = decide({ risk: confidentRisk }, allowAll);
+    expect(d.verdict).toBe('hold');
+    expect(d.reasons).toContain('destructive: no valid answer → fail-safe hold');
+  });
+
+  it('holds when Jev returns nothing at all', () => {
+    expect(decide({}, allowAll).verdict).toBe('hold');
+  });
+
+  it('holds when an answer has the wrong type for its dimension', () => {
+    const d = decide({ risk: confidentRisk, destructive: { ...confidentRisk } }, allowAll);
+    expect(d.verdict).toBe('hold');
+    expect(d.readouts.destructive).toBeUndefined();
+  });
+
+  it('holds on non-finite numbers', () => {
+    const answers: Record<string, Answer> = {
+      risk: { type: 'score', score: Number.NaN, confidence: 0.9, probabilities: {} },
+      destructive: { type: 'noul', noul: 0.01 },
+    };
+    expect(decide(answers, allowAll).verdict).toBe('hold');
+    const badConf: Record<string, Answer> = {
+      risk: { type: 'score', score: 0, confidence: Number.NaN, probabilities: {} },
+      destructive: { type: 'noul', noul: Number.NaN },
+    };
+    expect(decide(badConf, allowAll).reasons).toHaveLength(2);
+  });
+
+  it('keeps a block even when some answers are missing', () => {
+    expect(decide({}, { ...policy, decide: () => 'block' }).verdict).toBe('block');
+  });
+
+  it('reads choice answers as their label', () => {
+    const choicePolicy: GuardPolicy = {
+      dimensions: { kind: { kind: 'choice', instructions: 'k', options: { read: 'r', write: 'w' } } },
+      decide: (r) => (r.kind?.value === 'read' ? 'allow' : 'hold'),
+    };
+    const d = decide({ kind: { type: 'choice', choice: 'read', confidence: 0.9, probabilities: {} } }, choicePolicy);
+    expect(d.verdict).toBe('allow');
+  });
+});

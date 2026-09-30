@@ -1,5 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import { guard } from '../src/guard.js';
+import { createCache } from '../src/cache.js';
+import { wrapTool } from '../src/adapters/wrap-tool.js';
+import { GuardBlockedError } from '../src/enforce.js';
 import { noul, score } from '../src/policy.js';
 import type { GuardPolicy } from '../src/policy.js';
 import type { Answer, JevProvider } from '@cmaintz/jev-core';
@@ -50,5 +53,48 @@ describe('guard', () => {
     expect(r.shortCircuited).toBe(false);
     expect(r.usage?.input_tokens).toBe(10);
     expect(audit).toHaveBeenCalledOnce();
+  });
+});
+
+describe('guard when the provider fails', () => {
+  const failing = (): JevProvider => ({
+    evaluate: vi.fn(async () => {
+      throw new Error('Jev request timed out after 30000 ms');
+    }),
+  });
+
+  it('returns a fail-safe hold with the error, and audits it', async () => {
+    const audit = vi.fn();
+    const r = await guard({ tool: 'bash', arguments: { cmd: 'ls' } }, policy, failing(), { audit });
+    expect(r.verdict).toBe('hold');
+    expect(r.error).toContain('timed out');
+    expect(r.reasons[0]).toMatch(/provider error/);
+    expect(audit).toHaveBeenCalledWith(expect.objectContaining({ verdict: 'hold' }));
+  });
+
+  it('does not cache the failure', async () => {
+    const cache = createCache();
+    const provider = failing();
+    await guard({ tool: 'bash', arguments: { cmd: 'ls' } }, policy, provider, { cache });
+    await guard({ tool: 'bash', arguments: { cmd: 'ls' } }, policy, provider, { cache });
+    expect(provider.evaluate).toHaveBeenCalledTimes(2);
+  });
+
+  it('stringifies non-Error rejections', async () => {
+    const provider: JevProvider = { evaluate: () => Promise.reject('boom') };
+    const r = await guard({ tool: 'bash', arguments: {} }, policy, provider);
+    expect(r.error).toBe('boom');
+  });
+
+  it('is denied by wrapTool, so the tool never runs', async () => {
+    const execute = vi.fn();
+    const safe = wrapTool('bash', execute, policy, failing());
+    await expect(safe({ cmd: 'ls' })).rejects.toBeInstanceOf(GuardBlockedError);
+    expect(execute).not.toHaveBeenCalled();
+  });
+
+  it('holds when the provider returns no answers', async () => {
+    const r = await guard({ tool: 'bash', arguments: {} }, policy, providerReturning({}));
+    expect(r.verdict).toBe('hold');
   });
 });
