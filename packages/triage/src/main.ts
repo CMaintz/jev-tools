@@ -37,25 +37,25 @@ async function run(): Promise<void> {
   const issue = github.context.payload.issue;
   if (issue) {
     const result = await triageIssue(deps, toIssueRef(issue as PayloadIssue));
-    finish([result], 0);
+    await finish([result], 0);
     return;
   }
 
   if (github.context.eventName === 'workflow_dispatch' || github.context.eventName === 'schedule') {
     const { results, skipped, total } = await triageBacklog(deps);
     core.info(`Backlog: triaged ${results.length}, skipped ${skipped} already-marked/PRs, ${total} open total.`);
-    finish(results, skipped);
+    await finish(results, skipped);
     return;
   }
 
   core.info('No issue in payload and not a backlog trigger (workflow_dispatch/schedule); nothing to triage.');
 }
 
-function finish(results: TriageResult[], skipped: number): void {
+async function finish(results: TriageResult[], skipped: number): Promise<void> {
   for (const r of results) for (const alert of r.alerts) core.warning(`Jev flagged: ${alert} on issue #${r.number}`);
   core.setOutput('applied-labels', results.length === 1 ? (results[0]?.labels.join(',') ?? '') : '');
   core.setOutput('escalated', String(results.some((r) => r.escalated)));
-  void writeSummary(results, skipped);
+  await writeSummary(results, skipped);
 }
 
 function makeProvider(kind: string, model: string): JevProvider {
