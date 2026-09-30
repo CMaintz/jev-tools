@@ -64,9 +64,47 @@ describe('postJson', () => {
   it('gives up after maxAttempts on persistent 429', async () => {
     vi.useFakeTimers();
     mockFetch(json({}, 429), json({}, 429));
-    const p = postJson('https://x.test', {}, {}, 2);
+    const p = postJson('https://x.test', {}, {}, { maxAttempts: 2 });
     const assertion = expect(p).rejects.toThrow('429');
     await vi.runAllTimersAsync();
     await assertion;
+  });
+});
+
+describe('postJson timeouts and bodies', () => {
+  it('aborts a hung request after timeoutMs', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn<typeof fetch>(
+        (_url, init) =>
+          new Promise((_resolve, reject) => {
+            init?.signal?.addEventListener('abort', () => reject(init.signal?.reason));
+          }),
+      ),
+    );
+    await expect(postJson('https://x.test', {}, {}, { timeoutMs: 20 })).rejects.toThrow('timed out after 20 ms');
+  });
+
+  it('rethrows network errors unchanged', async () => {
+    vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockRejectedValue(new TypeError('fetch failed')));
+    await expect(postJson('https://x.test', {}, {})).rejects.toThrow('fetch failed');
+  });
+
+  it('rejects a 200 whose body is not JSON', async () => {
+    mockFetch(new Response('<html>gateway</html>', { status: 200 }));
+    await expect(postJson('https://x.test', {}, {})).rejects.toThrow('not valid JSON');
+  });
+});
+
+describe('providers validate the response', () => {
+  it('rejects a response without an answers object', async () => {
+    mockFetch(json({ error: 'nope' }));
+    await expect(new TypeSafeProvider('k').evaluate(req)).rejects.toThrow('no answers object');
+  });
+
+  it('drops malformed answers instead of passing them through', async () => {
+    mockFetch(json({ model: 'm', answers: { spam: { type: 'noul', noul: 'high' } } }));
+    const res = await new TypeSafeProvider('k').evaluate(req);
+    expect(res.answers).toEqual({});
   });
 });

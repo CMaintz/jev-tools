@@ -62,7 +62,7 @@ describe('OpenAiEscalator', () => {
 
   it('posts a chat completion and parses the JSON content', async () => {
     const content = JSON.stringify({ answers: { spam: { type: 'noul', noul: 0.2 } }, rationale: 'ok' });
-    const fetchMock = vi.fn(async () => ({ ok: true, json: async () => ({ choices: [{ message: { content } }] }) }));
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ choices: [{ message: { content } }] })));
     vi.stubGlobal('fetch', fetchMock);
 
     const out = await new OpenAiEscalator({ apiKey: 'k', model: 'gpt-4o-mini' }).escalate({ title: 'x' }, questions);

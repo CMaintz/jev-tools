@@ -1,5 +1,6 @@
 import type { JevProvider, JevRequest, JevResponse } from './jev-provider.js';
 import { postJson } from './http.js';
+import { parseJevResponse } from './validate.js';
 
 /**
  * TypeSafe first-party adapter.
@@ -11,7 +12,8 @@ import { postJson } from './http.js';
  *   auth:     Authorization: Bearer {TYPESAFE_API_KEY}
  *
  * The official Python/JS SDKs are the eventual preferred path; this raw adapter keeps the
- * Action dependency-light. `postJson` applies the docs' recommended 429/529 backoff.
+ * Action dependency-light. `postJson` applies the docs' recommended 429/529 backoff and a timeout;
+ * `parseJevResponse` validates the answers against the questions asked.
  */
 export class TypeSafeProvider implements JevProvider {
   constructor(
@@ -26,6 +28,6 @@ export class TypeSafeProvider implements JevProvider {
       { Authorization: `Bearer ${this.apiKey}` },
       { model: this.model, state: req.state, questions: req.questions },
     );
-    return json as JevResponse;
+    return parseJevResponse(json, req.questions);
   }
 }

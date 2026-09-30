@@ -1,5 +1,6 @@
 import type { JevProvider, JevRequest, JevResponse } from './jev-provider.js';
 import { postJson } from './http.js';
+import { parseJevResponse } from './validate.js';
 
 /**
  * Cloudflare Workers AI adapter. Model slug: `typesafe/jev`.
@@ -24,6 +25,6 @@ export class CloudflareProvider implements JevProvider {
       { Authorization: `Bearer ${this.apiToken}` },
       { model: this.model, input: { state: req.state, questions: req.questions } },
     );
-    return json as JevResponse;
+    return parseJevResponse(json, req.questions);
   }
 }
