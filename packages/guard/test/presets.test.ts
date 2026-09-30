@@ -16,6 +16,12 @@ describe('presets', () => {
     }
   });
 
+  it('only sets escalateBelow where a score/choice dimension can use it', () => {
+    for (const p of [shellPolicy(), filesystemPolicy(), sqlPolicy(), paymentsPolicy()]) {
+      const gated = Object.values(p.dimensions).some((d) => d.kind !== 'noul');
+      expect(p.escalateBelow !== undefined).toBe(gated);
+    }
+  });
 
   it('shellPolicy: block destructive+risky, hold exfiltration or high risk, else allow', () => {
     const p = shellPolicy();

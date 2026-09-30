@@ -4,6 +4,10 @@ import { noul, score, type GuardPolicy, type Readout } from './policy.js';
  * Ready-made policies for the common dangerous tool classes. Use directly, or spread
  * and tweak: `{ ...shellPolicy(), escalateBelow: 0.9, perTool: { echo: 'allow' } }`.
  * These are sensible defaults, not a security boundary — see the README.
+ *
+ * Only shellPolicy sets `escalateBelow`: it is the only preset with a score dimension,
+ * and the confidence floor gates score/choice answers only (a noul has no confidence;
+ * its probability is compared against the thresholds in `decide` instead).
  */
 
 const RISK_LEVELS = ['none', 'local-reversible', 'local-destructive', 'external-or-irreversible'];
@@ -43,7 +47,6 @@ export function filesystemPolicy(): GuardPolicy {
       if (num(r.destructive) >= 0.8 || num(r.outsideWorkspace) >= 0.8) return 'hold';
       return 'allow';
     },
-    escalateBelow: 0.7,
   };
 }
 
@@ -61,7 +64,6 @@ export function sqlPolicy(): GuardPolicy {
       if (num(r.mutating) >= 0.8) return 'hold';
       return 'allow';
     },
-    escalateBelow: 0.7,
   };
 }
 
@@ -73,6 +75,5 @@ export function paymentsPolicy(): GuardPolicy {
       irreversible: noul('Is this transfer hard to reverse (external payout, crypto, wire)?'),
     },
     decide: (r) => (num(r.movesMoney) >= 0.5 ? 'hold' : 'allow'),
-    escalateBelow: 0.9,
   };
 }

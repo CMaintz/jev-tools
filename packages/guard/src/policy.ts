@@ -42,7 +42,11 @@ export interface GuardPolicy {
   dimensions: Record<string, Dimension>;
   /** pure verdict from the readouts — your risk logic, as typed code (not a string DSL). */
   decide: (readouts: Record<string, Readout>) => Verdict;
-  /** confidence floor: an `allow` leaning on a below-floor score/choice answer fails safe to `hold`. */
+  /**
+   * confidence floor: an `allow` leaning on a below-floor score/choice answer fails safe to
+   * `hold`. Has no effect on noul dimensions (Jev returns no confidence for them), so a
+   * noul-only policy should gate through the thresholds in `decide` instead.
+   */
   escalateBelow?: number;
   /** per-tool shortcut evaluated BEFORE any Jev call — e.g. `{ read_file: 'allow' }` to bypass cheap tools. */
   perTool?: Record<string, Verdict>;
