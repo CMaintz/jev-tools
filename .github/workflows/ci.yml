@@ -1,0 +1,38 @@
+name: ci
+on:
+  pull_request: {}
+  push:
+    branches: [main]
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    name: Gate (lint, typecheck, test, audit, build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3
+        with:
+          version: '2026.9.2'
+      - run: npm ci
+      - name: 'gate: lint'
+        run: mise run lint
+      - name: 'gate: typecheck'
+        run: mise run typecheck
+      - name: 'gate: test (coverage floor)'
+        run: mise run test
+      - name: 'gate: audit'
+        run: mise run audit
+      - name: Build all packages
+        run: npm run build
+      - name: Action bundle is up to date
+        run: |
+          if ! git diff --quiet -- packages/triage/dist; then
+            echo "::error::packages/triage/dist is stale. Run 'npm run build' and commit packages/triage/dist."
+            git diff --stat -- packages/triage/dist
+            exit 1
+          fi

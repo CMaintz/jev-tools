@@ -1,0 +1,6 @@
+{
+  "packages/core": "0.1.0",
+  "packages/guard": "1.0.0",
+  "packages/triage": "1.0.0",
+  "packages/sort": "1.0.0"
+}
