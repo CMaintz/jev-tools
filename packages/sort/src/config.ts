@@ -43,11 +43,16 @@ export function parseConfig(raw: string): SortConfig {
     else questions[name] = noul(q.instructions);
   }
 
+  const concurrency = doc.concurrency ?? 8;
+  if (!Number.isInteger(concurrency) || concurrency < 1) {
+    throw new Error(`jev-sort config: concurrency must be a positive integer, got ${String(doc.concurrency)}`);
+  }
+
   return {
     provider: doc.provider ?? 'typesafe',
     model: doc.model ?? 'jev-latest',
     escalate_below: doc.escalate_below ?? 0,
-    concurrency: doc.concurrency ?? 8,
+    concurrency,
     format: doc.format ?? 'jsonl',
     questions,
   };

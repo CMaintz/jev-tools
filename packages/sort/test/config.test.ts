@@ -38,3 +38,13 @@ questions:
     expect(() => parseConfig('provider: typesafe')).toThrow(/at least one question/);
   });
 });
+
+describe('parseConfig concurrency', () => {
+  const q = 'questions:\n  urgent: { kind: noul, instructions: urgent? }\n';
+  it.each(['0', '-1', '2.5', 'fast'])('rejects concurrency: %s', (v) => {
+    expect(() => parseConfig(`concurrency: ${v}\n${q}`)).toThrow('concurrency must be a positive integer');
+  });
+  it('accepts a positive integer', () => {
+    expect(parseConfig(`concurrency: 3\n${q}`).concurrency).toBe(3);
+  });
+});

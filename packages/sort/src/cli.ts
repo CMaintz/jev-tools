@@ -1,31 +1,46 @@
 #!/usr/bin/env node
-import { parseArgs } from 'node:util';
 import { createInterface } from 'node:readline';
 import { appendFileSync, readFileSync } from 'node:fs';
-import { classify, evaluate, RateLimiter } from './index.js';
+import { CloudflareProvider, TypeSafeProvider, type JevProvider, type Question } from '@cmaintz/jev-core';
+import { classify, isFailed } from './classify.js';
+import { evaluate } from './eval.js';
+import { RateLimiter } from './rate-limit.js';
 import { parseConfig, type SortConfig } from './config.js';
 import { parseQuestions } from './core/questions.js';
 import { parseEscalate } from './core/escalate.js';
 import { csvHeader, rowFromCells, splitCsvLine, toCsvLine } from './csv.js';
-import { CloudflareProvider, TypeSafeProvider, type JevProvider, type Question } from '@cmaintz/jev-core';
+import { HELP, parseCliArgs, type CliOptions } from './args.js';
 
 type Row = Record<string, unknown>;
+type Reject = (record: Row) => void;
 
-async function* readRows(stream: NodeJS.ReadableStream, format: 'jsonl' | 'csv'): AsyncGenerator<Row> {
+async function* readRows(stream: NodeJS.ReadableStream, format: 'jsonl' | 'csv', reject: Reject): AsyncGenerator<Row> {
   const rl = createInterface({ input: stream, crlfDelay: Infinity });
+  let lineNo = 0;
   if (format === 'csv') {
     let header: string[] | undefined;
     for await (const line of rl) {
+      lineNo++;
       if (!line.trim() && !header) continue;
       const cells = splitCsvLine(line);
       if (!header) header = cells;
       else if (line.trim()) yield rowFromCells(header, cells);
     }
-  } else {
-    for await (const line of rl) {
-      const trimmed = line.trim();
-      if (trimmed) yield JSON.parse(trimmed) as Row;
+    return;
+  }
+  for await (const line of rl) {
+    lineNo++;
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(trimmed);
+    } catch {
+      reject({ _line: lineNo, _raw: trimmed, _error: 'invalid JSON' });
+      continue;
     }
+    if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) yield parsed as Row;
+    else reject({ _line: lineNo, _raw: trimmed, _error: 'row is not a JSON object' });
   }
 }
 
@@ -47,66 +62,56 @@ function readJsonlFile(file: string): Row[] {
     .map((l) => JSON.parse(l) as Row);
 }
 
-async function main(): Promise<void> {
-  const { values } = parseArgs({
-    options: {
-      q: { type: 'string', multiple: true, short: 'q' },
-      config: { type: 'string' },
-      escalate: { type: 'string' },
-      'review-out': { type: 'string' },
-      format: { type: 'string' },
-      provider: { type: 'string' },
-      model: { type: 'string' },
-      concurrency: { type: 'string' },
-      rate: { type: 'string' },
-      dedupe: { type: 'boolean', default: false },
-      eval: { type: 'string' },
-      'allow-review': { type: 'boolean', default: false },
-    },
-  });
-
-  const cfg: Partial<SortConfig> = values.config ? parseConfig(readFileSync(values.config, 'utf8')) : {};
-  const questions: Record<string, Question> = cfg.questions ?? parseQuestions(values.q ?? []);
-  const provider = makeProvider(
-    values.provider ?? cfg.provider ?? 'typesafe',
-    values.model ?? cfg.model ?? 'jev-latest',
-  );
-
-  // --eval: measure accuracy against a labeled sample, then stop.
-  if (values.eval) {
-    const report = await evaluate(readJsonlFile(values.eval), questions, provider);
-    process.stderr.write(`eval: ${report.total} rows · overall ${(report.overall * 100).toFixed(1)}%\n`);
-    for (const [k, s] of Object.entries(report.perQuestion)) {
-      process.stderr.write(`  ${k}: ${(s.accuracy * 100).toFixed(1)}% (${s.correct}/${s.total})\n`);
-    }
-    return;
+async function runEval(file: string, questions: Record<string, Question>, provider: JevProvider): Promise<void> {
+  const report = await evaluate(readJsonlFile(file), questions, provider);
+  process.stderr.write(`eval: ${report.total} rows · overall ${(report.overall * 100).toFixed(1)}%\n`);
+  for (const [k, s] of Object.entries(report.perQuestion)) {
+    process.stderr.write(`  ${k}: ${(s.accuracy * 100).toFixed(1)}% (${s.correct}/${s.total})\n`);
   }
+}
 
-  const format = (values.format ?? cfg.format ?? 'jsonl') as 'jsonl' | 'csv';
-  const threshold = values.escalate ? parseEscalate(values.escalate) : (cfg.escalate_below ?? 0);
-  const concurrency = values.concurrency ? Number(values.concurrency) : (cfg.concurrency ?? 8);
-  const limiter = values.rate ? new RateLimiter(Number(values.rate)) : undefined;
-  const reviewOut = values['review-out']; // review stream is always JSONL
+async function run(o: CliOptions): Promise<void> {
+  const cfg: Partial<SortConfig> = o.config ? parseConfig(readFileSync(o.config, 'utf8')) : {};
+  const questions: Record<string, Question> = cfg.questions ?? parseQuestions(o.questions);
+  const provider = makeProvider(o.provider ?? cfg.provider ?? 'typesafe', o.model ?? cfg.model ?? 'jev-latest');
+
+  if (o.eval) return runEval(o.eval, questions, provider);
+
+  const format = o.format ?? cfg.format ?? 'jsonl';
+  const threshold = o.escalate ? parseEscalate(o.escalate) : (cfg.escalate_below ?? 0);
+  const limiter = o.rate ? new RateLimiter(o.rate) : undefined;
 
   let rows = 0;
   let flagged = 0;
+  let rejected = 0;
   let tokens = 0;
   let columns: string[] = [];
   const startedAt = Date.now();
 
-  for await (const r of classify(readRows(process.stdin, format), questions, {
+  const reject: Reject = (record) => {
+    rejected++;
+    const line = JSON.stringify(record) + '\n';
+    if (o.rejectOut) appendFileSync(o.rejectOut, line);
+    else process.stderr.write(`jev-sort: rejected ${line}`);
+  };
+
+  for await (const r of classify(readRows(process.stdin, format, reject), questions, {
     provider,
     escalateBelow: threshold,
-    concurrency,
-    dedupe: values.dedupe,
+    concurrency: o.concurrency ?? cfg.concurrency ?? 8,
+    dedupe: o.dedupe,
     ...(limiter ? { limiter } : {}),
   })) {
+    if (isFailed(r)) {
+      reject({ ...r.row, _error: r.error });
+      continue;
+    }
     rows++;
     tokens += r.usage?.input_tokens ?? 0;
     const record = { ...r.row, ...r.columns, _confidence: Number(r.confidence.toFixed(4)) };
 
-    if (r.escalated && reviewOut) {
-      appendFileSync(reviewOut, JSON.stringify(record) + '\n');
+    if (r.escalated && o.reviewOut) {
+      appendFileSync(o.reviewOut, JSON.stringify(record) + '\n');
       flagged++;
       continue;
     }
@@ -122,11 +127,24 @@ async function main(): Promise<void> {
   }
 
   const secs = ((Date.now() - startedAt) / 1000).toFixed(1);
+  // TypeSafe list price: $0.042 per million input tokens, output free (typesafe.ai pricing).
   const cost = ((tokens / 1_000_000) * 0.042).toFixed(4);
+  const review = o.reviewOut ? ` -> ${o.reviewOut}` : '';
+  const rejects = o.rejectOut ? ` -> ${o.rejectOut}` : '';
   process.stderr.write(
-    `${rows} rows · $${cost} · ${secs}s · ${flagged} flagged${reviewOut ? ` -> ${reviewOut}` : ''}\n`,
+    `${rows} rows · ${tokens} input tokens (est. $${cost}) · ${secs}s · ${flagged} flagged${review} · ${rejected} rejected${rejects}\n`,
   );
-  if (flagged > 0 && !values['allow-review']) process.exitCode = 2;
+  if (rejected > 0) process.exitCode = 3;
+  else if (flagged > 0 && !o.allowReview) process.exitCode = 2;
+}
+
+async function main(): Promise<void> {
+  const parsed = parseCliArgs(process.argv.slice(2));
+  if (parsed.help) {
+    process.stdout.write(HELP);
+    return;
+  }
+  await run(parsed.options);
 }
 
 main().catch((err: unknown) => {
