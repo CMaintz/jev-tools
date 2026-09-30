@@ -23,14 +23,14 @@
     "test": "vitest run --root ../.. --project @cmaintz/jev-triage"
   },
   "dependencies": {
+    "@actions/core": "^3.0.1",
+    "@actions/github": "^9.1.1",
     "@cmaintz/jev-core": "^0.1.0",
-    "@actions/core": "^1.11.1",
-    "@actions/github": "^6.0.0",
     "js-yaml": "^4.1.0"
   },
   "devDependencies": {
-    "@vercel/ncc": "^0.38.3",
-    "@types/js-yaml": "^4.0.9"
+    "@types/js-yaml": "^4.0.9",
+    "@vercel/ncc": "^0.38.3"
   },
   "private": true
 }
