@@ -1,6 +1,6 @@
 # jev-tools
 
-TypeScript tools built on [TypeSafe AI's Jev](https://typesafe.ai/), a model that takes text state and returns typed answers (`choice` / `score` / `noul`) with a probability or confidence instead of prose.
+[TypeSafe AI's Jev](https://typesafe.ai/) is a fast, very cheap model that takes text state and returns typed answers (`choice` / `score` / `noul`) with a probability or confidence instead of prose. A model that can't ramble seemed worth building on, so I wrapped it in a few TypeScript tools.
 
 Unofficial: not affiliated with TypeSafe AI.
 
@@ -15,7 +15,7 @@ All three tools use Jev the same way: ask narrow questions, branch on the typed 
 
 ## Install
 
-The npm packages are **not yet published**. They are set up for publishing (`publishConfig` with public access and npm provenance), but until the first release, install from source:
+The npm packages are not published yet. They are set up for publishing (`publishConfig` with public access and npm provenance), but until the first release, install from source:
 
 ```bash
 git clone https://github.com/CMaintz/jev-tools.git
@@ -65,15 +65,15 @@ Triage issues as they open: see [`packages/triage/examples/`](packages/triage/ex
 
 Figures below are TypeSafe's own published numbers; this repo does not benchmark them.
 
-- **Speed and price.** TypeSafe quotes 70–500 ms end to end, $0.042 per million input tokens, and free output tokens ([announcement](https://typesafe.ai/blog/introducing-system-one-models-and-jev)).
-- **Accuracy.** On [TypeSafe's workflow evals](https://evals.typesafe.ai/), Jev scores 67.8%, measured as agreement with reference labels averaged from two frontier models across four example workflows. That is agreement with other models, not verified ground truth. Either way, treat answers as first-pass judgments; that is why every tool here gates on confidence.
-- **Limits.** Text only. 64k tokens per request, 32k for state plus the longest question; 40 requests/s ([models page](https://docs.typesafe.ai/models)). No rationale, no generation, no arithmetic: counting, dates and routing tables stay in code.
+- Speed and price: TypeSafe quotes 70–500 ms end to end, $0.042 per million input tokens, and free output tokens ([announcement](https://typesafe.ai/blog/introducing-system-one-models-and-jev)).
+- Accuracy: On [TypeSafe's workflow evals](https://evals.typesafe.ai/), Jev scores 67.8%, measured as agreement with reference labels averaged from two frontier models across four example workflows. That is agreement with other models, not verified ground truth. Either way, treat answers as first-pass judgments; that is why every tool here gates on confidence.
+- Limits: Text only. 64k tokens per request, 32k for state plus the longest question; 40 requests/s ([models page](https://docs.typesafe.ai/models)). No rationale, no generation, no arithmetic: counting, dates and routing tables stay in code.
 
 ## Status
 
 - `jev-guard` 1.0, `jev-triage` 1.0 and `jev-sort` 1.0 were built as separate repos and merged here with their history (`git log -- packages/<name>`). `jev-core` is new: it replaces three identical copies of the provider code.
 - Unit tests run against a stubbed provider. The triage package has a live smoke test (`packages/triage/test/live.test.ts`) and the guard package a live smoke script (`packages/guard/examples/smoke.mjs`); both need `JEV_API_KEY` and are skipped in CI.
-- Not a security boundary: see the guard README.
+- Not a security boundary: see the guard README. Think second opinion, not sandbox.
 
 ## Development
 
