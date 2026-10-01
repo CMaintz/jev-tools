@@ -1,0 +1,43 @@
+name: publish
+# Publishes one npm package when scripts/cut-release.sh pushes its tag (core-v0.2.0 etc).
+# Auth is npm trusted publishing (OIDC), so there is no NPM_TOKEN; provenance comes with it.
+# triage is a GitHub Action consumed by ref, so it has no tag pattern here.
+on:
+  push:
+    tags: ['core-v*', 'guard-v*', 'sort-v*']
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # npm trusted publishing + provenance
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22.14.0'
+          registry-url: 'https://registry.npmjs.org'
+      - name: npm with trusted publishing support (11.5.1+)
+        run: npm install -g npm@11.21.0
+      - run: npm ci
+      - run: npm run build
+      - name: Publish
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          pkg="${TAG%-v*}"
+          ver="${TAG##*-v}"
+          name=$(node -p "require('./packages/$pkg/package.json').name")
+          actual=$(node -p "require('./packages/$pkg/package.json').version")
+          if [ "$actual" != "$ver" ]; then
+            echo "::error::$TAG does not match packages/$pkg/package.json ($actual)"
+            exit 1
+          fi
+          if npm view "$name@$ver" version > /dev/null 2>&1; then
+            echo "$name@$ver is already on npm, nothing to do"
+            exit 0
+          fi
+          npm publish --workspace "packages/$pkg" --access public
