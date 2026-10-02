@@ -87,7 +87,24 @@ npm run build       # core → guard/sort (tsc) → triage (ncc bundle into pack
 
 `mise run gate` runs lint, typecheck, test and audit in the same order CI does. If you change `packages/triage` or `packages/core`, rebuild and commit `packages/triage/dist`: the Action runs the bundled file, and CI fails if it's out of date.
 
-Releases use [release-please](https://github.com/googleapis/release-please) in manifest mode, with one version and changelog per package.
+### Releasing
+
+Each package is versioned on its own and released when I decide it's ready, not on every merge. From a clean `main`:
+
+```bash
+bash scripts/cut-release.sh guard minor   # <core|guard|sort|triage> <major|minor|patch|X.Y.Z>, --dry-run to preview
+```
+
+It bumps that package's version, prepends a section to its `CHANGELOG.md` from the conventional commits that touched `packages/<pkg>` since its last tag, commits, tags `<pkg>-vX.Y.Z` (e.g. `guard-v1.1.0`), pushes and creates the GitHub release. A breaking commit without a major bump is refused. guard, sort and triage shipped 1.0.0 from their old repos, so before their first tag here the changelog starts at the commit that set 1.0.0. core has never been released; `cut-release.sh core 0.1.0` tags it as is.
+
+The tag push runs [`publish.yml`](.github/workflows/publish.yml), which publishes core, guard or sort to npm with [trusted publishing](https://docs.npmjs.com/trusted-publishers) (OIDC, no npm token in the repo) and provenance. `triage` is only tagged; Action users pin `CMaintz/jev-tools/packages/triage@triage-vX.Y.Z` or a SHA. Release `core` before anything that needs a new core, and widen the `@cmaintz/jev-core` range in guard, sort and triage when core leaves `0.1.x`.
+
+One-time setup per npm package (trusted publishing is configured on the package page, so the package has to exist first):
+
+1. Publish the current version by hand: `npm login`, `npm run build`, then `npm publish --workspace packages/<pkg> --access public --provenance=false` (provenance needs CI).
+2. On npmjs.com, package Settings > Trusted publishing > GitHub Actions: owner `CMaintz`, repository `jev-tools`, workflow `publish.yml`.
+
+After that every tag publishes from CI. If a tag's version is already on npm (say `core-v0.1.0` after the manual publish), the workflow skips it.
 
 ## Other languages
 
