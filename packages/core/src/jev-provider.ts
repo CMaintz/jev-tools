@@ -22,7 +22,7 @@ type ScoreQuestion = {
 type NoulQuestion = {
   type: 'noul';
   instructions: string;
-  /** optional descriptions of what true/false mean — improves calibration. */
+  /** optional descriptions of what true/false mean; improves calibration. */
   criteria?: { true: string; false: string };
 };
 
