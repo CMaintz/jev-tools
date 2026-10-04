@@ -50,7 +50,7 @@
     "jq"
   ],
   "dependencies": {
-    "@cmaintz/jev-core": "^0.1.0",
+    "@cmaintz/jev-core": "^0.2.0",
     "js-yaml": "^4.1.0"
   },
   "devDependencies": {
