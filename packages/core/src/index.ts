@@ -5,3 +5,6 @@ export { postJson } from './http.js';
 export type { PostJsonOptions } from './http.js';
 export { parseJevResponse } from './validate.js';
 export { stableStringify } from './stable-stringify.js';
+export { providerFromEnv } from './env.js';
+export type { JevEnv } from './env.js';
+export { JevError, JevHttpError, JevResponseError, JevTimeoutError } from './errors.js';

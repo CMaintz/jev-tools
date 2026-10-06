@@ -1,6 +1,6 @@
 {
   "name": "@cmaintz/jev-core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Shared TypeSafe AI Jev client for the jev-tools packages: question/answer types, TypeSafe + Cloudflare providers, retrying HTTP.",
   "license": "MIT",
   "author": "Christoffer Maintz",
@@ -24,7 +24,8 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "CHANGELOG.md"
   ],
   "engines": {
     "node": ">=20"

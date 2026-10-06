@@ -6,9 +6,9 @@ import { parseJevResponse } from './validate.js';
  * Cloudflare Workers AI adapter. Model slug: `typesafe/jev`.
  *
  * Verified against https://developers.cloudflare.com/ai/models/typesafe/jev/ (2026-09):
- *   POST {base}/accounts/{account}/ai/run     — model goes in the BODY, not the path
+ *   POST {base}/accounts/{account}/ai/run     - model goes in the BODY, not the path
  *   body:     { "model": "typesafe/jev", "input": { state, questions } }
- *   response: raw { model, answers, usage }    — no Cloudflare `result` envelope
+ *   response: raw { model, answers, usage }    - no Cloudflare `result` envelope
  *   auth:     Authorization: Bearer {token}
  */
 export class CloudflareProvider implements JevProvider {

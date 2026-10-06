@@ -1,3 +1,4 @@
+import { JevResponseError } from './errors.js';
 import type { Answer, JevResponse, Question } from './jev-provider.js';
 
 const isObject = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
@@ -33,7 +34,7 @@ function validAnswer(raw: unknown, question: Question): Answer | undefined {
  */
 export function parseJevResponse(json: unknown, questions: Record<string, Question>): JevResponse {
   if (!isObject(json) || !isObject(json.answers)) {
-    throw new Error('Jev response has no answers object');
+    throw new JevResponseError('Jev response has no answers object');
   }
   const answers: Record<string, Answer> = {};
   for (const [key, question] of Object.entries(questions)) {
