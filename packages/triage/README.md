@@ -26,7 +26,7 @@ Plus a config file at `.github/jev-triage.yml`. [`examples/jev-triage.yml`](exam
 The Action lives in a subdirectory, so the `uses:` path includes it: `CMaintz/jev-tools/packages/triage@<ref>`. GitHub runs the committed bundle at `packages/triage/dist/index.js`, which needs no install step.
 
 - **Pinning:** releases are tagged `triage-vX.Y.Z` (see [Releasing](../../README.md#releasing)). Until the first one is tagged, pin a full commit SHA rather than `main`.
-- **Existing users:** `uses: CMaintz/jev-triage@v1` still points at the old repo's `v1` tag and keeps working. New fixes land here only.
+- **Marketplace:** `uses: CMaintz/jev-triage@v1` is a thin wrapper that calls a pinned commit of this package. New fixes land here and reach the wrapper when its pin is bumped.
 
 ## How it works
 
