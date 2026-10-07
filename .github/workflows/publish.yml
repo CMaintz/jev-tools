@@ -1,9 +1,6 @@
 name: publish
 # Publishes one npm package when scripts/cut-release.sh pushes its tag (core-v0.2.0 etc).
-# Auth is the NPM_TOKEN repository secret (a granular automation token with publish rights
-# on @cmaintz/*). A token is needed for the first publish of each package, since npm trusted
-# publishing can only be configured once the package exists. After it is configured for every
-# package, NODE_AUTH_TOKEN can be dropped. Provenance is signed via the OIDC id-token.
+# Auth is npm trusted publishing (OIDC), so there is no NPM_TOKEN; provenance comes with it.
 # triage is a GitHub Action consumed by ref, so it has no tag pattern here.
 on:
   push:
@@ -16,21 +13,20 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write # npm provenance (and trusted publishing once configured)
+      id-token: write # npm trusted publishing + provenance
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: '22.14.0'
           registry-url: 'https://registry.npmjs.org'
-      - name: npm with provenance and trusted publishing support (11.5.1+)
+      - name: npm with trusted publishing support (11.5.1+)
         run: npm install -g npm@11.21.0
       - run: npm ci
       - run: npm run build
       - name: Publish
         env:
           TAG: ${{ github.ref_name }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           pkg="${TAG%-v*}"
           ver="${TAG##*-v}"
@@ -44,4 +40,4 @@ jobs:
             echo "$name@$ver is already on npm, nothing to do"
             exit 0
           fi
-          npm publish --workspace "packages/$pkg" --access public --provenance
+          npm publish --workspace "packages/$pkg" --access public
