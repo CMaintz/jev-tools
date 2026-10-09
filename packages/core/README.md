@@ -10,7 +10,7 @@ Unofficial: not affiliated with TypeSafe AI.
 npm install @cmaintz/jev-core
 ```
 
-ESM only, Node 20 or newer (uses the global `fetch`). No runtime dependencies.
+ESM only, Node 20.3 or newer (uses the global `fetch`). No runtime dependencies.
 
 ## Usage
 
@@ -39,6 +39,30 @@ const typesafe = new TypeSafeProvider(process.env.JEV_API_KEY!); // model 'jev-l
 const workersAi = new CloudflareProvider(accountId, apiToken); // model 'typesafe/jev'
 ```
 
+### Building blocks
+
+```ts
+import {
+  choice,
+  minConfidence,
+  noul,
+  RateLimiter,
+  validateQuestions,
+  withCache,
+  withRateLimit,
+} from '@cmaintz/jev-core';
+
+const questions = {
+  team: choice({ billing: 'payments, invoices', tech: 'bugs, outages' }, 'Which team owns this?'),
+  urgent: noul('Does the customer need an answer today?'),
+};
+validateQuestions(questions); // throws JevRequestError on a batch the API would reject
+
+const jev = withCache(withRateLimit(provider, new RateLimiter(600))); // 600/min, repeats served from cache
+const { answers } = await jev.evaluate({ state: ticket, questions }, { signal: AbortSignal.timeout(5_000) });
+if (minConfidence(answers) < 0.6) sendToHuman(ticket);
+```
+
 ### Environment
 
 `providerFromEnv(env = process.env)` reads:
@@ -60,6 +84,11 @@ Empty strings count as unset.
 - **`providerFromEnv(env?)`:** see above.
 - **`postJson(url, headers, body, { maxAttempts, timeoutMs } | maxAttempts)`:** retries 429/529 with exponential backoff (250 ms, 500 ms, 1 s, as [TypeSafe's API docs](https://docs.typesafe.ai/api) recommend), aborts each attempt after `timeoutMs` (default 30 s), and rejects non-JSON bodies. `maxAttempts` defaults to 4.
 - **`parseJevResponse(json, questions)`:** throws if there is no `answers` object, and drops any answer that is missing, has the wrong type for its question, names an unknown choice, or has a non-finite or out-of-range number. Callers see those as "no answer" and can fail safe.
+- **`choice(options, instructions?)`, `noul(instructions, criteria?)`, `score(levels, instructions?)`:** question builders. **`validateQuestions(questions)`:** throws a `JevRequestError` listing every question that breaks the documented limits (choice 1 to 255 options, score 2 to 10 levels, non-empty instructions). Providers do not call it for you.
+- **`answerValue(a)`** (label, score or probability), **`answerConfidence(a)`** (undefined for noul), **`minConfidence(answers)`** (lowest choice/score confidence, 1 if none).
+- **Cancellation:** every `evaluate(req, { signal })` and `postJson(..., { signal })` call takes an `AbortSignal`; aborting also stops retry backoff and rejects with the signal's reason.
+- **`withCache(provider, { ttlMs, max } | cache)`:** serves identical requests from a TTL cache; only successful responses are cached. **`createTtlCache({ ttlMs, max })`** is the cache it uses (60 s, 1000 entries by default).
+- **`withRateLimit(provider, new RateLimiter(perMinute))`:** spaces calls evenly under a per-minute budget.
 - **`stableStringify(value)`:** JSON with object keys sorted recursively, for cache and dedupe keys.
 
 ### Errors

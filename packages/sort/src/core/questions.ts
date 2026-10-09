@@ -1,13 +1,7 @@
-import type { Question } from '@cmaintz/jev-core';
+import { choice, noul, score, type Question } from '@cmaintz/jev-core';
 
-/** Library helpers to declare questions (the Jev question shapes). */
-export const choice = (options: Record<string, string>, instructions = ''): Question => ({
-  type: 'choice',
-  instructions,
-  criteria: options,
-});
-export const noul = (instructions: string): Question => ({ type: 'noul', instructions });
-export const score = (levels: string[], instructions = ''): Question => ({ type: 'score', instructions, criteria: levels });
+/** Library helpers to declare questions (the Jev question shapes), shared with @cmaintz/jev-core. */
+export { choice, noul, score };
 
 /** Parse one inline spec: `name:choice(a,b,c)` | `name:noul` | `name:score(low,mid,high)`. */
 export function parseQuestion(spec: string): [name: string, question: Question] {
@@ -41,6 +35,6 @@ export function parseQuestions(specs: string[]): Record<string, Question> {
     const [name, q] = parseQuestion(s);
     out[name] = q;
   }
-  if (Object.keys(out).length === 0) throw new Error('no questions — use -q name:type(...)');
+  if (Object.keys(out).length === 0) throw new Error('no questions; use -q name:type(...)');
   return out;
 }
