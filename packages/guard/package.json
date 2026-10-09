@@ -1,6 +1,6 @@
 {
   "name": "@cmaintz/jev-guard",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Framework-agnostic guardrail that vets an LLM agent's proposed tool calls through TypeSafe AI Jev before they execute.",
   "license": "MIT",
   "author": "Christoffer Maintz",
@@ -32,7 +32,8 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "CHANGELOG.md"
   ],
   "engines": {
     "node": ">=20"

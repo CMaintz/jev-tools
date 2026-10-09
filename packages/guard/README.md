@@ -10,7 +10,9 @@ Each guarded call costs one Jev request that asks all of the policy's risk quest
 
 `enforce` / `wrapTool` / the adapters throw `GuardBlockedError` on `block`, and on `hold` unless an `onHold` handler approves.
 
-> Not yet published to npm. See the [root README](../../README.md#install) to build from source.
+```bash
+npm install @cmaintz/jev-guard
+```
 
 ```ts
 import { guard, noul, score, TypeSafeProvider, type GuardPolicy } from '@cmaintz/jev-guard';

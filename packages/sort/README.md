@@ -2,7 +2,10 @@
 
 Stream rows through [TypeSafe AI's Jev](https://typesafe.ai/) and get typed classification/score columns plus a `_confidence` field. Each row is one Jev request carrying all your questions.
 
-> Not yet published to npm. See the [root README](../../README.md#install) to build from source. After `npm run build`, the CLI is at `packages/sort/dist/cli.js`.
+```bash
+npm install -g @cmaintz/jev-sort   # CLI
+npm install @cmaintz/jev-sort      # library
+```
 
 ```bash
 export JEV_API_KEY=...
