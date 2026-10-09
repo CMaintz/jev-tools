@@ -15,16 +15,11 @@ All three tools use Jev the same way: ask narrow questions, branch on the typed 
 
 ## Install
 
-The npm packages are not published yet. They are set up for publishing (`publishConfig` with public access and npm provenance), but until the first release, install from source:
-
 ```bash
-git clone https://github.com/CMaintz/jev-tools.git
-cd jev-tools
-npm ci
-npm run build
+npm install @cmaintz/jev-guard     # tool-call guardrail
+npm install -g @cmaintz/jev-sort   # bulk classification CLI
+npm install @cmaintz/jev-core      # the shared client, to build your own tool
 ```
-
-Once published: `npm install @cmaintz/jev-guard` or `npm install -g @cmaintz/jev-sort`.
 
 The Action needs no install. Reference it by path:
 

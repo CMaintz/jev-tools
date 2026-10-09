@@ -2,10 +2,13 @@
 
 All notable changes to this project are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## After 1.0.0, before the move to jev-tools
+## [1.1.0] - 2026-10-09
+
+First release published to npm.
 
 ### Changed
 
+- Moved into the [jev-tools](https://github.com/CMaintz/jev-tools) monorepo. The provider code, question builders and `RateLimiter` now come from [`@cmaintz/jev-core`](https://www.npmjs.com/package/@cmaintz/jev-core); the exports and their behavior are unchanged.
 - Default model is now `jev-latest` (was the pinned `jev-1.13.0`), tracking the recommended model. Use `--model` or `model:` in config to pin a version for reproducibility.
 
 ## [1.0.0] - 2026-09-25
