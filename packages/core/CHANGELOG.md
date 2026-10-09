@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.0
+
+### Features
+
+- `createProvider({ provider, apiKey, model, accountId, baseUrl })`: builds a TypeSafe or Cloudflare provider from plain settings and throws `JevRequestError` when one is missing. On Cloudflare, `jev-latest` maps to `typesafe/jev`, so one model setting works on both backends. `providerFromEnv` now uses it, so `JEV_MODEL=jev-latest` works with `JEV_PROVIDER=cloudflare`.
+
 ## 0.2.0
 
 First version intended for npm. Folds in what the standalone copies of the client (leash, Foundry, cmaintz-skills) had that core lacked, so they can switch to this package.

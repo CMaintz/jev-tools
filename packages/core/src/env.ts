@@ -1,6 +1,5 @@
-import { CloudflareProvider } from './cloudflare.js';
+import { createProvider } from './create-provider.js';
 import type { JevProvider } from './jev-provider.js';
-import { TypeSafeProvider } from './typesafe.js';
 
 /** Environment variables `providerFromEnv` reads. A plain record, so `process.env` fits without `@types/node`. */
 export type JevEnv = Readonly<Record<string, string | undefined>>;
@@ -11,16 +10,17 @@ export type JevEnv = Readonly<Record<string, string | undefined>>;
  *
  * Reads: JEV_PROVIDER (typesafe | cloudflare, default typesafe), JEV_API_KEY, JEV_MODEL,
  * CLOUDFLARE_ACCOUNT_ID (cloudflare only), and TYPESAFE_AI_BASE_URL (self-host, proxy or mock).
- * Empty strings count as unset.
+ * Empty strings count as unset; any JEV_PROVIDER other than `cloudflare` means TypeSafe.
  */
 export function providerFromEnv(env: JevEnv = globalThis.process?.env ?? {}): JevProvider | null {
-  const key = env.JEV_API_KEY;
-  if (!key) return null;
-  if ((env.JEV_PROVIDER || 'typesafe') === 'cloudflare') return cloudflareFromEnv(env, key);
-  return new TypeSafeProvider(key, env.JEV_MODEL || undefined, env.TYPESAFE_AI_BASE_URL || undefined);
-}
-
-function cloudflareFromEnv(env: JevEnv, apiToken: string): JevProvider | null {
-  if (!env.CLOUDFLARE_ACCOUNT_ID) return null;
-  return new CloudflareProvider(env.CLOUDFLARE_ACCOUNT_ID, apiToken, env.JEV_MODEL || undefined);
+  const apiKey = env.JEV_API_KEY;
+  const provider = env.JEV_PROVIDER === 'cloudflare' ? 'cloudflare' : 'typesafe';
+  if (!apiKey || (provider === 'cloudflare' && !env.CLOUDFLARE_ACCOUNT_ID)) return null;
+  return createProvider({
+    provider,
+    apiKey,
+    ...(env.JEV_MODEL ? { model: env.JEV_MODEL } : {}),
+    ...(env.CLOUDFLARE_ACCOUNT_ID ? { accountId: env.CLOUDFLARE_ACCOUNT_ID } : {}),
+    ...(env.TYPESAFE_AI_BASE_URL ? { baseUrl: env.TYPESAFE_AI_BASE_URL } : {}),
+  });
 }

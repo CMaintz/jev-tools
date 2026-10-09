@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { parseConfig } from './config.js';
-import { CloudflareProvider, TypeSafeProvider, type JevProvider } from '@cmaintz/jev-core';
+import { createProvider, type JevProvider } from '@cmaintz/jev-core';
 import { OpenAiEscalator, type LlmEscalator } from './llm.js';
 import {
   triageBacklog,
@@ -61,9 +61,9 @@ async function finish(results: TriageResult[], skipped: number): Promise<void> {
 function makeProvider(kind: string, model: string): JevProvider {
   const apiKey = core.getInput('jev-api-key', { required: true });
   core.setSecret(apiKey); // never let the key surface in logs
-  if (kind === 'typesafe') return new TypeSafeProvider(apiKey, model);
+  if (kind === 'typesafe') return createProvider({ apiKey, model });
   const accountId = core.getInput('cloudflare-account-id', { required: true });
-  return new CloudflareProvider(accountId, apiKey);
+  return createProvider({ provider: 'cloudflare', apiKey, model, accountId });
 }
 
 function makeEscalator(): LlmEscalator | undefined {
@@ -130,7 +130,7 @@ async function writeSummary(results: TriageResult[], skipped: number): Promise<v
   const dupes = results.filter((r) => r.duplicateOf !== undefined).length;
   const plural = results.length === 1 ? '' : 's';
   await core.summary
-    .addHeading(`Jev triage — ${results.length} issue${plural}`)
+    .addHeading(`Jev triage: ${results.length} issue${plural}`)
     .addTable([
       [
         { data: 'Triaged', header: true },
