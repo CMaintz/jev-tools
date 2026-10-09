@@ -5,6 +5,8 @@ export interface PostJsonOptions {
   maxAttempts?: number;
   /** per-attempt timeout in ms. Default 30 000. */
   timeoutMs?: number;
+  /** cancels the request and any retry backoff; rejects with the signal's reason. */
+  signal?: AbortSignal;
 }
 
 /**
@@ -21,26 +23,27 @@ export async function postJson(
   body: unknown,
   opts: PostJsonOptions | number = {},
 ): Promise<unknown> {
-  const { maxAttempts = 4, timeoutMs = 30_000 } = typeof opts === 'number' ? { maxAttempts: opts } : opts;
+  const { maxAttempts = 4, timeoutMs = 30_000, signal } = typeof opts === 'number' ? { maxAttempts: opts } : opts;
   const init = {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...headers },
     body: JSON.stringify(body),
   };
   for (let attempt = 1; ; attempt++) {
-    const res = await fetchOnce(url, init, timeoutMs);
+    const res = await fetchOnce(url, init, timeoutMs, signal);
     if (res.ok) return parseBody(await res.text());
     const error = new JevHttpError(res.status, await res.text());
     if (!error.retryable || attempt >= maxAttempts) throw error;
-    await sleep(250 * 2 ** (attempt - 1));
+    await sleep(250 * 2 ** (attempt - 1), signal);
   }
 }
 
-async function fetchOnce(url: string, init: RequestInit, timeoutMs: number): Promise<Response> {
+async function fetchOnce(url: string, init: RequestInit, timeoutMs: number, signal?: AbortSignal): Promise<Response> {
+  const timeout = AbortSignal.timeout(timeoutMs);
   try {
-    return await fetch(url, { ...init, signal: AbortSignal.timeout(timeoutMs) });
+    return await fetch(url, { ...init, signal: signal ? AbortSignal.any([signal, timeout]) : timeout });
   } catch (err) {
-    if (err instanceof Error && err.name === 'TimeoutError') throw new JevTimeoutError(timeoutMs, { cause: err });
+    if (timeout.aborted && !signal?.aborted) throw new JevTimeoutError(timeoutMs, { cause: err });
     throw err;
   }
 }
@@ -53,6 +56,17 @@ function parseBody(text: string): unknown {
   }
 }
 
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function sleep(ms: number, signal?: AbortSignal): Promise<void> {
+  signal?.throwIfAborted();
+  return new Promise((resolve, reject) => {
+    const onAbort = () => {
+      clearTimeout(timer);
+      reject(signal!.reason);
+    };
+    const timer = setTimeout(() => {
+      signal?.removeEventListener('abort', onAbort);
+      resolve();
+    }, ms);
+    signal?.addEventListener('abort', onAbort, { once: true });
+  });
 }

@@ -65,7 +65,12 @@ export interface JevResponse {
   usage?: { input_tokens: number; output_tokens: number };
 }
 
+export interface EvaluateOptions {
+  /** cancels the call, including any retry backoff; the promise rejects with the signal's reason. */
+  signal?: AbortSignal;
+}
+
 export interface JevProvider {
   /** One round-trip. Adding questions is near-free: they are evaluated in parallel. */
-  evaluate(req: JevRequest): Promise<JevResponse>;
+  evaluate(req: JevRequest, opts?: EvaluateOptions): Promise<JevResponse>;
 }

@@ -1,4 +1,4 @@
-import { stableStringify } from '@cmaintz/jev-core';
+import { createTtlCache, stableStringify } from '@cmaintz/jev-core';
 import type { GuardResult } from './guard.js';
 import type { ToolCall } from './policy.js';
 
@@ -7,7 +7,7 @@ export interface GuardCache {
   set(key: string, value: GuardResult): void;
 }
 
-/** Deterministic cache key for a tool call — stable regardless of argument key order. */
+/** Deterministic cache key for a tool call, stable regardless of argument key order. */
 export function keyOf(call: ToolCall): string {
   return `${call.tool}\u0000${call.task ?? ''}\u0000${stableStringify(call.arguments)}`;
 }
@@ -18,27 +18,5 @@ export function keyOf(call: ToolCall): string {
  * `{ cache }` so identical repeated tool calls skip the Jev round-trip.
  */
 export function createCache(opts: { ttlMs?: number; max?: number } = {}): GuardCache {
-  const ttlMs = opts.ttlMs ?? 60_000;
-  const max = opts.max ?? 1000;
-  const store = new Map<string, { value: GuardResult; expires: number }>();
-  return {
-    get(key) {
-      const hit = store.get(key);
-      if (!hit) return undefined;
-      if (hit.expires <= Date.now()) {
-        store.delete(key);
-        return undefined;
-      }
-      store.delete(key);
-      store.set(key, hit); // refresh recency
-      return hit.value;
-    },
-    set(key, value) {
-      if (store.size >= max) {
-        const oldest = store.keys().next().value;
-        if (oldest !== undefined) store.delete(oldest);
-      }
-      store.set(key, { value, expires: Date.now() + ttlMs });
-    },
-  };
+  return createTtlCache<GuardResult>(opts);
 }
