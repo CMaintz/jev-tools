@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { createInterface } from 'node:readline';
 import { appendFileSync, readFileSync } from 'node:fs';
-import { CloudflareProvider, TypeSafeProvider, type JevProvider, type Question } from '@cmaintz/jev-core';
+import { createProvider, type JevProvider, type Question } from '@cmaintz/jev-core';
 import { classify, isFailed } from './classify.js';
 import { evaluate } from './eval.js';
 import { RateLimiter } from './rate-limit.js';
@@ -47,12 +47,10 @@ async function* readRows(stream: NodeJS.ReadableStream, format: 'jsonl' | 'csv',
 function makeProvider(kind: string, model: string): JevProvider {
   const key = process.env.JEV_API_KEY;
   if (!key) throw new Error('set JEV_API_KEY in the environment');
-  if (kind === 'cloudflare') {
-    const account = process.env.CLOUDFLARE_ACCOUNT_ID;
-    if (!account) throw new Error('set CLOUDFLARE_ACCOUNT_ID for --provider cloudflare');
-    return new CloudflareProvider(account, key);
-  }
-  return new TypeSafeProvider(key, model);
+  if (kind !== 'cloudflare') return createProvider({ apiKey: key, model });
+  const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
+  if (!accountId) throw new Error('set CLOUDFLARE_ACCOUNT_ID for --provider cloudflare');
+  return createProvider({ provider: 'cloudflare', apiKey: key, model, accountId });
 }
 
 function readJsonlFile(file: string): Row[] {

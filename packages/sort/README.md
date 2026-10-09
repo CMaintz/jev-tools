@@ -35,7 +35,7 @@ Run `jev-sort --help` for the full list.
 - **Failures:** a row whose Jev call fails, or that comes back without an answer to every question, is written to `--reject-out FILE` (JSONL, the row plus `_error`). So is an input line that isn't a JSON object, with `_line` and `_raw`. The stream keeps going. Without `--reject-out`, rejects are reported on stderr. Exit code 3 if anything was rejected.
 - **Throughput:** `--concurrency N` (positive integer, default 8) · `--rate N` (max requests per minute) · `--dedupe` (identical rows reuse one answer). Output order follows completion, not input order.
 - **Formats:** `--format jsonl|csv` for input and stdout. CSV fields can't contain embedded newlines.
-- **Provider:** `--provider typesafe|cloudflare` · `--model jev-latest`. Set `JEV_API_KEY`, plus `CLOUDFLARE_ACCOUNT_ID` for Cloudflare.
+- **Provider:** `--provider typesafe|cloudflare` · `--model jev-latest` (sent as `typesafe/jev` on Cloudflare; any other model id is passed through). Set `JEV_API_KEY`, plus `CLOUDFLARE_ACCOUNT_ID` for Cloudflare.
 - **Measure first:** `--eval labeled.jsonl` reports per-question agreement against a hand-labeled sample (truth columns are stripped from the state), so you know the accuracy on your data before a large run.
 
 ## Library
