@@ -1,4 +1,4 @@
-import type { JevProvider, JevRequest, JevResponse } from './jev-provider.js';
+import type { EvaluateOptions, JevProvider, JevRequest, JevResponse } from './jev-provider.js';
 import { postJson } from './http.js';
 import { parseJevResponse } from './validate.js';
 
@@ -18,12 +18,13 @@ export class CloudflareProvider implements JevProvider {
     private readonly model = 'typesafe/jev',
   ) {}
 
-  async evaluate(req: JevRequest): Promise<JevResponse> {
+  async evaluate(req: JevRequest, opts: EvaluateOptions = {}): Promise<JevResponse> {
     const url = `https://api.cloudflare.com/client/v4/accounts/${this.accountId}/ai/run`;
     const json = await postJson(
       url,
       { Authorization: `Bearer ${this.apiToken}` },
       { model: this.model, input: { state: req.state, questions: req.questions } },
+      opts,
     );
     return parseJevResponse(json, req.questions);
   }

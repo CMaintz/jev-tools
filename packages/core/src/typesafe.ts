@@ -1,4 +1,4 @@
-import type { JevProvider, JevRequest, JevResponse } from './jev-provider.js';
+import type { EvaluateOptions, JevProvider, JevRequest, JevResponse } from './jev-provider.js';
 import { postJson } from './http.js';
 import { parseJevResponse } from './validate.js';
 
@@ -22,11 +22,12 @@ export class TypeSafeProvider implements JevProvider {
     private readonly baseUrl = 'https://api.typesafe.ai/v1',
   ) {}
 
-  async evaluate(req: JevRequest): Promise<JevResponse> {
+  async evaluate(req: JevRequest, opts: EvaluateOptions = {}): Promise<JevResponse> {
     const json = await postJson(
       `${this.baseUrl}/systemone`,
       { Authorization: `Bearer ${this.apiKey}` },
       { model: this.model, state: req.state, questions: req.questions },
+      opts,
     );
     return parseJevResponse(json, req.questions);
   }
