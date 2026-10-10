@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.4.0](https://github.com/CMaintz/jev-tools/compare/core-v0.3.0...core-v0.4.0) (2026-10-10)
+
+### Features
+
+* structured prompts and a request timeout setting (9b848f7)
+
+### Bug Fixes
+
+* do not start a request once the signal has aborted (1f618b7)
+
 ## 0.4.0
 
 ### Features
