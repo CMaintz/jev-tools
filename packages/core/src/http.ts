@@ -1,5 +1,8 @@
 import { JevHttpError, JevResponseError, JevTimeoutError } from './errors.js';
 
+/** Per-attempt timeout used when none is given. */
+export const DEFAULT_TIMEOUT_MS = 30_000;
+
 export interface PostJsonOptions {
   /** total attempts, including the first. Default 4. */
   maxAttempts?: number;
@@ -23,7 +26,7 @@ export async function postJson(
   body: unknown,
   opts: PostJsonOptions | number = {},
 ): Promise<unknown> {
-  const { maxAttempts = 4, timeoutMs = 30_000, signal } = typeof opts === 'number' ? { maxAttempts: opts } : opts;
+  const { maxAttempts = 4, timeoutMs = DEFAULT_TIMEOUT_MS, signal } = typeof opts === 'number' ? { maxAttempts: opts } : opts;
   const init = {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...headers },
@@ -39,6 +42,7 @@ export async function postJson(
 }
 
 async function fetchOnce(url: string, init: RequestInit, timeoutMs: number, signal?: AbortSignal): Promise<Response> {
+  signal?.throwIfAborted();
   const timeout = AbortSignal.timeout(timeoutMs);
   try {
     return await fetch(url, { ...init, signal: signal ? AbortSignal.any([signal, timeout]) : timeout });

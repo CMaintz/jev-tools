@@ -1,5 +1,5 @@
 import type { EvaluateOptions, JevProvider, JevRequest, JevResponse } from './jev-provider.js';
-import { postJson } from './http.js';
+import { DEFAULT_TIMEOUT_MS, postJson } from './http.js';
 import { parseJevResponse } from './validate.js';
 
 /**
@@ -16,6 +16,7 @@ export class CloudflareProvider implements JevProvider {
     private readonly accountId: string,
     private readonly apiToken: string,
     private readonly model = 'typesafe/jev',
+    private readonly timeoutMs = DEFAULT_TIMEOUT_MS,
   ) {}
 
   async evaluate(req: JevRequest, opts: EvaluateOptions = {}): Promise<JevResponse> {
@@ -24,7 +25,7 @@ export class CloudflareProvider implements JevProvider {
       url,
       { Authorization: `Bearer ${this.apiToken}` },
       { model: this.model, input: { state: req.state, questions: req.questions } },
-      opts,
+      { timeoutMs: this.timeoutMs, ...opts },
     );
     return parseJevResponse(json, req.questions);
   }

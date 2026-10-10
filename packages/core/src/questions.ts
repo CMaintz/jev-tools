@@ -1,22 +1,22 @@
 import { JevError } from './errors.js';
-import type { Question } from './jev-provider.js';
+import type { JevText, Question } from './jev-provider.js';
 
-/** Build a pick-one question. `options` maps each label to when to pick it. */
-export const choice = (options: Record<string, string>, instructions = ''): Question => ({
+/** Build a pick-one question. `options` maps each label to when to pick it (null: no extra detail). */
+export const choice = (options: Record<string, JevText | null>, instructions: JevText = ''): Question => ({
   type: 'choice',
   instructions,
   criteria: options,
 });
 
 /** Build a true/false question. `criteria` optionally describes what true and false mean. */
-export const noul = (instructions: string, criteria?: { true: string; false: string }): Question => ({
+export const noul = (instructions: JevText, criteria?: { true: JevText; false: JevText }): Question => ({
   type: 'noul',
   instructions,
   ...(criteria ? { criteria } : {}),
 });
 
 /** Build an ordered-rubric question. `levels` run low to high. */
-export const score = (levels: string[], instructions = ''): Question => ({
+export const score = (levels: JevText[], instructions: JevText = ''): Question => ({
   type: 'score',
   instructions,
   criteria: levels,
@@ -45,7 +45,7 @@ export function validateQuestions(questions: Record<string, Question>): void {
 }
 
 function questionProblems(key: string, q: Question): string[] {
-  const problems = q.instructions.trim() ? [] : [`${key}: empty instructions`];
+  const problems = isEmptyText(q.instructions) ? [`${key}: empty instructions`] : [];
   if (q.type === 'choice') {
     const n = Object.keys(q.criteria).length;
     if (n < 1 || n > QUESTION_LIMITS.maxChoiceOptions) {
@@ -60,4 +60,10 @@ function questionProblems(key: string, q: Question): string[] {
     }
   }
   return problems;
+}
+
+/** A blank string, or an object or array with nothing in it. */
+function isEmptyText(text: JevText): boolean {
+  if (typeof text === 'string') return !text.trim();
+  return Array.isArray(text) ? text.length === 0 : Object.keys(text).length === 0;
 }

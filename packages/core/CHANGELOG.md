@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.4.0
+
+### Features
+
+- Structured prompts: question `instructions` and `criteria` accept a JSON object or array as well as a string (new `JevText` and `JsonValue` types), matching the API. Choice options may map to `null`. The builders take the wider types, and `validateQuestions` treats an empty object or array as empty instructions.
+- Request timeout setting: `timeoutMs` on `createProvider`, as the 4th constructor argument of `TypeSafeProvider` and `CloudflareProvider`, per call via `evaluate(req, { timeoutMs })`, and `JEV_TIMEOUT_MS` in `providerFromEnv`. `DEFAULT_TIMEOUT_MS` (30 s) is exported.
+
+### Fixes
+
+- A signal that has already aborted now rejects before any request is sent, instead of starting a fetch that is cancelled straight away.
+
+### Breaking
+
+- Code that reads `Question.instructions` or `criteria` back as a string must now handle objects and arrays too. Code that only builds questions is unaffected.
+
 ## 0.3.0
 
 ### Features

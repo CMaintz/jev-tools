@@ -1,7 +1,16 @@
-export type { Answer, EvaluateOptions, JevProvider, JevRequest, JevResponse, Question } from './jev-provider.js';
+export type {
+  Answer,
+  EvaluateOptions,
+  JevProvider,
+  JevRequest,
+  JevResponse,
+  JevText,
+  JsonValue,
+  Question,
+} from './jev-provider.js';
 export { TypeSafeProvider } from './typesafe.js';
 export { CloudflareProvider } from './cloudflare.js';
-export { postJson } from './http.js';
+export { DEFAULT_TIMEOUT_MS, postJson } from './http.js';
 export type { PostJsonOptions } from './http.js';
 export { parseJevResponse } from './validate.js';
 export { stableStringify } from './stable-stringify.js';

@@ -65,3 +65,40 @@ describe('createProvider rejects incomplete settings', () => {
     expect(() => createProvider(config)).toThrow(message);
   });
 });
+
+describe('timeoutMs', () => {
+  /** A fetch that never settles until its signal aborts. */
+  function hang() {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn<typeof fetch>(
+        (_url, init) =>
+          new Promise((_resolve, reject) => {
+            init?.signal?.addEventListener('abort', () => reject(init.signal?.reason));
+          }),
+      ),
+    );
+  }
+
+  it.each([
+    ['typesafe', { apiKey: 'k', timeoutMs: 15 }],
+    ['cloudflare', { provider: 'cloudflare' as const, apiKey: 't', accountId: 'a', timeoutMs: 15 }],
+  ])('bounds each %s attempt by the configured timeout', async (_name, config) => {
+    hang();
+    await expect(createProvider(config).evaluate({ state: {}, questions: {} })).rejects.toThrow('timed out after 15 ms');
+  });
+
+  it('lets a single call override the provider timeout', async () => {
+    hang();
+    const provider = createProvider({ apiKey: 'k', timeoutMs: 60_000 });
+    await expect(provider.evaluate({ state: {}, questions: {} }, { timeoutMs: 10 })).rejects.toThrow('after 10 ms');
+  });
+
+  it.each([
+    ['25', { apiKey: 'k', timeoutMs: 25 }],
+    ['nope', { apiKey: 'k' }],
+    ['-5', { apiKey: 'k' }],
+  ])('reads JEV_TIMEOUT_MS=%s from the environment', (raw, config) => {
+    expect(providerFromEnv({ JEV_API_KEY: 'k', JEV_TIMEOUT_MS: raw })).toEqual(createProvider(config));
+  });
+});
