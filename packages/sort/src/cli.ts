@@ -8,6 +8,7 @@ import { RateLimiter } from './rate-limit.js';
 import { parseConfig, type SortConfig } from './config.js';
 import { parseQuestions } from './core/questions.js';
 import { parseEscalate } from './core/escalate.js';
+import { modelWarning, parseThresholds, pickGate, provenance } from './core/thresholds.js';
 import { csvHeader, rowFromCells, splitCsvLine, toCsvLine } from './csv.js';
 import { HELP, parseCliArgs, type CliOptions } from './args.js';
 
@@ -68,15 +69,42 @@ async function runEval(file: string, questions: Record<string, Question>, provid
   }
 }
 
+/** Read the gate from a jev-eval thresholds.json, reporting its provenance on stderr. */
+function gateFromFile(file: string, questions: Record<string, Question>, model: string): number {
+  const doc = parseThresholds(readFileSync(file, 'utf8'));
+  const picked = pickGate(doc, questions);
+  const warning = modelWarning(doc, model);
+  if (warning)
+    process.stderr.write(`jev-sort: warning: ${warning}
+`);
+  process.stderr.write(`jev-sort: ${provenance(picked, file)}
+`);
+  return picked.gate.threshold;
+}
+
+/** The escalation bar: --escalate, else --thresholds, else the config's escalate_below. */
+function escalationBar(
+  o: CliOptions,
+  cfg: Partial<SortConfig>,
+  questions: Record<string, Question>,
+  model: string,
+): number {
+  if (o.escalate && o.thresholds) throw new Error('use --escalate or --thresholds, not both');
+  if (o.escalate) return parseEscalate(o.escalate);
+  if (o.thresholds) return gateFromFile(o.thresholds, questions, model);
+  return cfg.escalate_below ?? 0;
+}
+
 async function run(o: CliOptions): Promise<void> {
   const cfg: Partial<SortConfig> = o.config ? parseConfig(readFileSync(o.config, 'utf8')) : {};
   const questions: Record<string, Question> = cfg.questions ?? parseQuestions(o.questions);
-  const provider = makeProvider(o.provider ?? cfg.provider ?? 'typesafe', o.model ?? cfg.model ?? 'jev-latest');
+  const model = o.model ?? cfg.model ?? 'jev-latest';
+  const provider = makeProvider(o.provider ?? cfg.provider ?? 'typesafe', model);
 
   if (o.eval) return runEval(o.eval, questions, provider);
 
   const format = o.format ?? cfg.format ?? 'jsonl';
-  const threshold = o.escalate ? parseEscalate(o.escalate) : (cfg.escalate_below ?? 0);
+  const threshold = escalationBar(o, cfg, questions, model);
   const limiter = o.rate ? new RateLimiter(o.rate) : undefined;
 
   let rows = 0;
