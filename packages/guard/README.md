@@ -92,6 +92,29 @@ const strictShell = { ...shellPolicy(), escalateBelow: 0.9, perTool: { echo: 'al
 
 `escalateBelow` gates score/choice answers only (Jev returns no confidence for a noul). So only `shellPolicy`, which has a score dimension, sets it. The noul-only presets gate through their probability thresholds.
 
+## Floors from jev-eval
+
+Instead of guessing `escalateBelow`, measure it with [jev-eval](https://github.com/CMaintz/jev-eval) on labeled tool calls and read its `thresholds.json`:
+
+```ts
+import { readFileSync } from 'node:fs';
+import { escalateBelowFrom, shellPolicy } from '@cmaintz/jev-guard';
+
+const base = shellPolicy();
+const { escalateBelow, provenance, warnings } = escalateBelowFrom(
+  readFileSync('thresholds.json', 'utf8'),
+  base,
+  'jev-latest', // optional: the model you run, to warn if the file was measured on another
+);
+warnings.forEach((w) => console.warn(w));
+console.info('guard floor', provenance); // threshold, accuracy, coverage, n, source, model
+const policy = { ...base, escalateBelow };
+```
+
+The floor applies to the policy's score/choice dimensions. With one of them it is that dimension's own gate. With several, the floor holds when any of them is below it, which is the same as the lowest confidence being below it, so it takes jev-eval's `composite` gate. The composite must have been measured on exactly those dimensions, or it throws. It also throws on a noul-only policy, a missing gate, or a file that is not contract version 1. It warns (without failing) on a model mismatch or when a dimension's wording differs from what jev-eval measured.
+
+It only sets `escalateBelow`. Noul dimensions and the probability thresholds in `decide` are left as they are.
+
 ## Caching
 
 `createCache({ ttlMs, max })` memoizes verdicts for identical calls (same tool, task and arguments, whatever the key order). Pass it as `{ cache }`. Provider failures are never cached.

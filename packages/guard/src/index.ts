@@ -18,6 +18,9 @@ export { shellPolicy, filesystemPolicy, sqlPolicy, paymentsPolicy } from './pres
 
 export type { Decision } from './core/decide.js';
 
+export { escalateBelowFrom } from './core/thresholds.js';
+export type { EscalateBelowFromThresholds, Gate, ThresholdsFile, ThresholdsProvenance } from './core/thresholds.js';
+
 // Shared provider port, re-exported from @cmaintz/jev-core.
 export { TypeSafeProvider, CloudflareProvider } from '@cmaintz/jev-core';
 export type { JevProvider } from '@cmaintz/jev-core';
