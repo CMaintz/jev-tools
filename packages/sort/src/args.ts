@@ -8,7 +8,7 @@ Each input row is sent as the Jev state. Requires JEV_API_KEY in the environment
 
 Questions (one of):
   -q, --q SPEC            inline question, repeatable: name:choice(a,b,c) | name:noul | name:score(lo,mid,hi)
-  --config FILE           YAML config with full instructions/criteria per question
+  --config FILE           YAML or JSON config with full instructions/criteria per question
 
 Output:
   --format jsonl|csv      input and stdout format (default jsonl)

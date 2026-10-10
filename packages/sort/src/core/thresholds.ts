@@ -1,4 +1,4 @@
-import type { Question } from '@cmaintz/jev-core';
+import { stableStringify, type Question } from '@cmaintz/jev-core';
 
 /** What one jev-eval gate buys: the cut-point and its measured accuracy/coverage on n rows. */
 export interface Gate {
@@ -14,6 +14,8 @@ export interface ThresholdsFile {
   model: string;
   questions: Record<string, Gate & { type: string }>;
   composite?: Gate & { questions: string[] };
+  /** jev-eval 1.2.0+: each question exactly as jev-eval sent it. */
+  definitions?: Record<string, unknown>;
 }
 
 export interface PickedGate {
@@ -102,4 +104,13 @@ export function provenance(picked: PickedGate, file: string): string {
     `gate ${gate.threshold} from ${file}${from} ` +
     `(jev-eval: ${pct(gate.accuracy)} at ${pct(gate.coverage)} coverage, n=${gate.n}, model ${picked.model})`
   );
+}
+
+/** One warning per gated question whose wording differs from what jev-eval measured. */
+export function definitionWarnings(doc: ThresholdsFile, questions: Record<string, Question>): string[] {
+  const defs = doc.definitions;
+  if (!defs) return [];
+  return gatedIds(questions)
+    .filter((id) => id in defs && stableStringify(defs[id]) !== stableStringify(questions[id]))
+    .map((id) => `${id} was reworded since it was measured; re-measure`);
 }
