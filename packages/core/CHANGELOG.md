@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.1
+
+### Features
+
+- `providerFromEnv` reads `CLOUDFLARE_API_TOKEN` for the Cloudflare backend when `JEV_API_KEY` is unset, so the token most Cloudflare setups already export works without a second copy. `JEV_API_KEY` still wins when both are set, and TypeSafe ignores it.
+
 ## [0.4.0](https://github.com/CMaintz/jev-tools/compare/core-v0.3.0...core-v0.4.0) (2026-10-10)
 
 ### Features

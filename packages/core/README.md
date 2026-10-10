@@ -73,6 +73,7 @@ if (minConfidence(answers) < 0.6) sendToHuman(ticket);
 | `JEV_PROVIDER`          | `typesafe` (default) or `cloudflare`.                                                      |
 | `JEV_MODEL`             | Model override. Defaults: `jev-latest` (TypeSafe), `typesafe/jev` (CF).                    |
 | `CLOUDFLARE_ACCOUNT_ID` | Required for `cloudflare`. Unset: returns `null`.                                          |
+| `CLOUDFLARE_API_TOKEN`  | Cloudflare only: used when `JEV_API_KEY` is unset.                                         |
 | `TYPESAFE_AI_BASE_URL`  | TypeSafe base URL override (proxy, self-host, mock). Default `https://api.typesafe.ai/v1`. |
 | `JEV_TIMEOUT_MS`        | Per-attempt request timeout in ms. Default 30 000.                                         |
 

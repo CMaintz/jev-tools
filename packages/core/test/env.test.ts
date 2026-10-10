@@ -53,6 +53,24 @@ describe('providerFromEnv typesafe', () => {
 });
 
 describe('providerFromEnv cloudflare', () => {
+  /** The bearer token a provider built from `env` sends. */
+  async function tokenFrom(env: Record<string, string>) {
+    const fetchMock = vi.fn<typeof fetch>(async () => new Response(JSON.stringify(answers)));
+    vi.stubGlobal('fetch', fetchMock);
+    await providerFromEnv(env)!.evaluate(req);
+    return (fetchMock.mock.calls[0]![1]?.headers as Record<string, string>).Authorization;
+  }
+
+  it('falls back to CLOUDFLARE_API_TOKEN, with JEV_API_KEY taking precedence', async () => {
+    const env = { JEV_PROVIDER: 'cloudflare', CLOUDFLARE_ACCOUNT_ID: 'a', CLOUDFLARE_API_TOKEN: 'cf' };
+    expect(await tokenFrom(env)).toBe('Bearer cf');
+    expect(await tokenFrom({ ...env, JEV_API_KEY: 'jev' })).toBe('Bearer jev');
+  });
+
+  it('ignores CLOUDFLARE_API_TOKEN for TypeSafe', () => {
+    expect(providerFromEnv({ CLOUDFLARE_API_TOKEN: 'cf' })).toBeNull();
+  });
+
   it('builds a Cloudflare provider with the typesafe/jev default model', async () => {
     const provider = providerFromEnv({ JEV_PROVIDER: 'cloudflare', JEV_API_KEY: 't', CLOUDFLARE_ACCOUNT_ID: 'a' });
     expect(provider).toBeInstanceOf(CloudflareProvider);
