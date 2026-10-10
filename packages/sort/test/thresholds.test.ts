@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { choice, noul, score, type Question } from '@cmaintz/jev-core';
 import {
+  definitionWarnings,
   gatedIds,
   modelWarning,
   parseThresholds,
@@ -75,6 +76,24 @@ describe('pickGate', () => {
   it('refuses when every question is a noul', () => {
     const questions: Record<string, Question> = { urgent };
     expect(() => pickGate(doc(), questions)).toThrow(/nothing to gate on/);
+  });
+});
+
+describe('definitionWarnings', () => {
+  const withDefinitions = (): ThresholdsFile => ({ ...doc(), definitions: { team, sentiment, urgent } });
+
+  it('is silent for files without definitions and for unchanged questions', () => {
+    expect(definitionWarnings(doc(), { team, sentiment })).toEqual([]);
+    expect(definitionWarnings(withDefinitions(), { team, sentiment, urgent })).toEqual([]);
+  });
+
+  it('names each gated question that was reworded, ignoring key order and nouls', () => {
+    const reworded = choice({ billing: 'Billing', tech: 'Tech' }, 'Which team owns this?');
+    const reordered = { criteria: sentiment.criteria, instructions: sentiment.instructions, type: 'score' } as Question;
+    const louder = noul('Is it REALLY urgent?');
+    expect(definitionWarnings(withDefinitions(), { team: reworded, sentiment: reordered, urgent: louder })).toEqual([
+      'team was reworded since it was measured; re-measure',
+    ]);
   });
 });
 

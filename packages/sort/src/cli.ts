@@ -8,7 +8,7 @@ import { RateLimiter } from './rate-limit.js';
 import { parseConfig, type SortConfig } from './config.js';
 import { parseQuestions } from './core/questions.js';
 import { parseEscalate } from './core/escalate.js';
-import { modelWarning, parseThresholds, pickGate, provenance } from './core/thresholds.js';
+import { definitionWarnings, modelWarning, parseThresholds, pickGate, provenance } from './core/thresholds.js';
 import { csvHeader, rowFromCells, splitCsvLine, toCsvLine } from './csv.js';
 import { HELP, parseCliArgs, type CliOptions } from './args.js';
 
@@ -73,8 +73,8 @@ async function runEval(file: string, questions: Record<string, Question>, provid
 function gateFromFile(file: string, questions: Record<string, Question>, model: string): number {
   const doc = parseThresholds(readFileSync(file, 'utf8'));
   const picked = pickGate(doc, questions);
-  const warning = modelWarning(doc, model);
-  if (warning)
+  const warnings = [modelWarning(doc, model), ...definitionWarnings(doc, questions)].filter(Boolean);
+  for (const warning of warnings)
     process.stderr.write(`jev-sort: warning: ${warning}
 `);
   process.stderr.write(`jev-sort: ${provenance(picked, file)}
