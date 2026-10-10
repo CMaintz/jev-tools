@@ -115,6 +115,21 @@ The floor applies to the policy's score/choice dimensions. With one of them it i
 
 It only sets `escalateBelow`. Noul dimensions and the probability thresholds in `decide` are left as they are.
 
+### Noul cut-offs
+
+The presets' noul cut-offs (block when `destructive >= 0.8`, and so on) can come from jev-eval too. Run `jev-eval thresholds --yes-precision 0.9,0.7` so the file has `yesAt`, then:
+
+```ts
+import { noulCutoffsFrom, shellPolicy } from '@cmaintz/jev-guard';
+
+const { cutoffs, provenance, warnings } = noulCutoffsFrom(readFileSync('thresholds.json', 'utf8'), shellPolicy());
+const policy = shellPolicy({ cutoffs }); // every preset takes { cutoffs }
+```
+
+For each noul dimension, the strictest precision target jev-eval reached sets the `block` cut-off and the loosest sets `hold`. A wrong block costs more than a hold, so blocks get the higher precision and holds the higher recall. A dimension with one measured target uses it for both, and one jev-eval could not measure keeps the preset's built-in value. Both cases come back as warnings, along with a model mismatch or a reworded dimension. It throws on a file without `yesAt`, a policy without noul dimensions, or a file that measured none of them. Without `cutoffs`, presets behave exactly as before.
+
+In your own policy, read `cutoffs.<dimension>?.block ?? <default>` inside `decide`.
+
 ## Caching
 
 `createCache({ ttlMs, max })` memoizes verdicts for identical calls (same tool, task and arguments, whatever the key order). Pass it as `{ cache }`. Provider failures are never cached.

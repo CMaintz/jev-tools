@@ -37,6 +37,12 @@ export interface Readout {
   raw: Answer;
 }
 
+/**
+ * Raw P(yes) cut-offs per noul dimension: `block` where the dimension counts toward a block,
+ * `hold` where it counts toward a hold. Derive them with `noulCutoffsFrom`.
+ */
+export type NoulCutoffs = Record<string, { block?: number; hold?: number }>;
+
 export interface GuardPolicy {
   /** the risk questions, asked in one batched Jev call (adding dimensions is near-free). */
   dimensions: Record<string, Dimension>;

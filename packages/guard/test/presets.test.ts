@@ -55,4 +55,24 @@ describe('presets', () => {
     expect(p.decide({ movesMoney: ro(0.6), irreversible: ro(0.9) })).toBe('hold');
     expect(p.decide({ movesMoney: ro(0.1), irreversible: ro(0) })).toBe('allow');
   });
+
+  it('cutoffs override only the given dimension and role', () => {
+    const fs = filesystemPolicy({ cutoffs: { outsideWorkspace: { block: 0.9 } } });
+    expect(fs.decide({ destructive: ro(0.9), outsideWorkspace: ro(0.6) })).toBe('hold');
+    expect(fs.decide({ destructive: ro(0.9), outsideWorkspace: ro(0.95) })).toBe('block');
+    expect(fs.decide({ destructive: ro(0.1), outsideWorkspace: ro(0.85) })).toBe('hold');
+
+    const fsHold = filesystemPolicy({ cutoffs: { destructive: { hold: 0.5 } } });
+    expect(fsHold.decide({ destructive: ro(0.6), outsideWorkspace: ro(0.1) })).toBe('hold');
+
+    const sql = sqlPolicy({ cutoffs: { unscoped: { block: 0.95 }, mutating: { hold: 0.5 } } });
+    expect(sql.decide({ mutating: ro(0.6), unscoped: ro(0.9) })).toBe('hold');
+    expect(sql.decide({ mutating: ro(0.4), unscoped: ro(0.1) })).toBe('allow');
+
+    const shell = shellPolicy({ cutoffs: { exfiltrates: { hold: 0.95 } } });
+    expect(shell.decide({ risk: ro(1), destructive: ro(0.1), exfiltrates: ro(0.9) })).toBe('allow');
+
+    const pay = paymentsPolicy({ cutoffs: { movesMoney: { hold: 0.9 } } });
+    expect(pay.decide({ movesMoney: ro(0.6), irreversible: ro(0) })).toBe('allow');
+  });
 });
