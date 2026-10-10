@@ -2,6 +2,17 @@
 
 All notable changes to this project are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0](https://github.com/CMaintz/jev-tools/compare/sort-v1.1.1...sort-v1.2.0) (2026-10-10)
+
+### Features
+
+* structured prompts and a request timeout setting (9b848f7)
+* --thresholds reads the escalation bar from a jev-eval thresholds.json (b2a198d)
+
+### Bug Fixes
+
+* use a single gated question's own gate even when the file has a composite (def32b5)
+
 ## [1.1.1](https://github.com/CMaintz/jev-tools/compare/sort-v1.1.0...sort-v1.1.1) (2026-10-10)
 
 ### Bug Fixes
