@@ -82,6 +82,11 @@ describe('parseCliArgs', () => {
     expect(() => parseCliArgs(['--provider', 'openai'])).toThrow('--provider must be one of typesafe, cloudflare');
   });
 
+  it('parses --thresholds', () => {
+    expect(opts(['--thresholds', 'thresholds.json']).thresholds).toBe('thresholds.json');
+    expect(HELP).toContain('--thresholds FILE');
+  });
+
   it('rejects unknown flags', () => {
     expect(() => parseCliArgs(['--nope'])).toThrow();
   });

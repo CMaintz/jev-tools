@@ -13,6 +13,8 @@ Questions (one of):
 Output:
   --format jsonl|csv      input and stdout format (default jsonl)
   --escalate 'conf<N'     rows below this confidence go to --review-out instead of stdout
+  --thresholds FILE       take the --escalate bar from a jev-eval thresholds.json (the
+                          composite row gate, or the one gated question's gate)
   --review-out FILE       JSONL file for escalated rows (exit code 2 if any, unless --allow-review)
   --allow-review          exit 0 even when rows were escalated
   --reject-out FILE       JSONL file for rows that failed (bad input line, provider error,
@@ -36,6 +38,7 @@ export interface CliOptions {
   questions: string[];
   config?: string;
   escalate?: string;
+  thresholds?: string;
   reviewOut?: string;
   rejectOut?: string;
   format?: 'jsonl' | 'csv';
@@ -74,6 +77,7 @@ export function parseCliArgs(argv: string[]): ParsedArgs {
       q: { type: 'string', multiple: true, short: 'q' },
       config: { type: 'string' },
       escalate: { type: 'string' },
+      thresholds: { type: 'string' },
       'review-out': { type: 'string' },
       'reject-out': { type: 'string' },
       format: { type: 'string' },
@@ -100,6 +104,7 @@ export function parseCliArgs(argv: string[]): ParsedArgs {
     allowReview: values['allow-review'],
     ...(values.config !== undefined ? { config: values.config } : {}),
     ...(values.escalate !== undefined ? { escalate: values.escalate } : {}),
+    ...(values.thresholds !== undefined ? { thresholds: values.thresholds } : {}),
     ...(values['review-out'] !== undefined ? { reviewOut: values['review-out'] } : {}),
     ...(values['reject-out'] !== undefined ? { rejectOut: values['reject-out'] } : {}),
     ...(values.model !== undefined ? { model: values.model } : {}),
