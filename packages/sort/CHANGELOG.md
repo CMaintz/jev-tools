@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1](https://github.com/CMaintz/jev-tools/compare/sort-v1.1.0...sort-v1.1.1) (2026-10-10)
+
+### Bug Fixes
+
+* honor the model setting for Cloudflare in sort and triage (65352cd)
+
 ## [1.1.0] - 2026-10-09
 
 First release published to npm.
