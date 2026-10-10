@@ -12,14 +12,22 @@ export { createCache, keyOf } from './cache.js';
 export type { GuardCache } from './cache.js';
 
 export { score, noul, choice } from './policy.js';
-export type { ToolCall, Verdict, Dimension, Readout, GuardPolicy } from './policy.js';
+export type { ToolCall, Verdict, Dimension, Readout, GuardPolicy, NoulCutoffs } from './policy.js';
 
 export { shellPolicy, filesystemPolicy, sqlPolicy, paymentsPolicy } from './presets.js';
+export type { PresetOptions } from './presets.js';
 
 export type { Decision } from './core/decide.js';
 
-export { escalateBelowFrom } from './core/thresholds.js';
-export type { EscalateBelowFromThresholds, Gate, ThresholdsFile, ThresholdsProvenance } from './core/thresholds.js';
+export { escalateBelowFrom, noulCutoffsFrom } from './core/thresholds.js';
+export type {
+  EscalateBelowFromThresholds,
+  Gate,
+  NoulCutoffsFromThresholds,
+  ThresholdsFile,
+  ThresholdsProvenance,
+  YesCut,
+} from './core/thresholds.js';
 
 // Shared provider port, re-exported from @cmaintz/jev-core.
 export { TypeSafeProvider, CloudflareProvider } from '@cmaintz/jev-core';
