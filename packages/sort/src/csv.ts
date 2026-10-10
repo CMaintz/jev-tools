@@ -1,7 +1,7 @@
 /**
  * Minimal, dependency-free CSV. Handles quoted fields with embedded commas and
  * doubled quotes. Does NOT support embedded newlines in a field (one line = one
- * row) — a documented v1.0 limitation that keeps parsing streamable line-by-line.
+ * row) - a documented v1.0 limitation that keeps parsing streamable line-by-line.
  */
 
 export function splitCsvLine(line: string): string[] {

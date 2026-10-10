@@ -4,7 +4,7 @@ import { guard, type GuardOptions } from '../guard.js';
 import { enforce, type EnforceOptions } from '../enforce.js';
 
 /**
- * Minimal structural shape of LangChain JS's `ToolCallRequest` — declared here so
+ * Minimal structural shape of LangChain JS's `ToolCallRequest` - declared here so
  * jev-guard carries NO hard dependency on `langchain` (bring your own version).
  */
 export interface LangChainToolCallRequest {

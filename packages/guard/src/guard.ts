@@ -29,7 +29,7 @@ export interface GuardOptions {
 }
 
 /**
- * Vet a single proposed tool call and return a verdict. Framework-agnostic core —
+ * Vet a single proposed tool call and return a verdict. Framework-agnostic core -
  * the LangChain / Vercel AI SDK adapters (v0.2+) are thin wrappers over this.
  *
  * v0.1 is "observe-friendly": it returns the verdict; the caller decides whether to

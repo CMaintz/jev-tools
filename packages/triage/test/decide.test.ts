@@ -35,7 +35,7 @@ describe('decide', () => {
     expect(d.needsHuman).toBe(false);
   });
 
-  it('never applies a low-confidence label — it flags for a human instead', () => {
+  it('never applies a low-confidence label - it flags for a human instead', () => {
     const answers: Record<string, Answer> = {
       type: { type: 'choice', choice: 'bug', confidence: 0.42, probabilities: { bug: 0.42, feature: 0.38 } },
       severity: { type: 'score', score: 1.0, confidence: 0.9, probabilities: {} },

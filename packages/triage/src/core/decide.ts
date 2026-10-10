@@ -3,7 +3,7 @@ import type { Answer } from '@cmaintz/jev-core';
 
 /**
  * The heart of the Action, and the reason the core is a pure function: given Jev's answers
- * and the config, decide what to apply. No network, no Octokit — 100% unit-testable.
+ * and the config, decide what to apply. No network, no Octokit - 100% unit-testable.
  *
  * The invariant: nothing is applied on low confidence. Jev is a first-pass judge (67.8%
  * agreement with frontier-model labels on https://evals.typesafe.ai/), so the confidence
@@ -34,7 +34,7 @@ export function decide(answers: Record<string, Answer>, config: TriageConfig): D
   let chosenType: string | undefined;
 
   const flagLowConfidence = (key: string, conf: number) => {
-    notes.push(`${key}: low confidence (${conf.toFixed(2)}) — held`);
+    notes.push(`${key}: low confidence (${conf.toFixed(2)}) - held`);
     if (config.on_low_confidence === 'escalate') escalate = true;
     else if (config.on_low_confidence === 'label') {
       labels.add(config.low_confidence_label);

@@ -3,7 +3,7 @@ import { load } from 'js-yaml';
 /**
  * Declarative triage config, read from `.github/jev-triage.yml` in the consuming repo.
  * This file is the product's prompt-engineering surface: the `instructions`/`criteria`
- * strings are what steer Jev. Keep questions narrow and phrased positively — Jev reads
+ * strings are what steer Jev. Keep questions narrow and phrased positively - Jev reads
  * negations literally.
  */
 

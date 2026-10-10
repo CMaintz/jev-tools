@@ -30,14 +30,14 @@ First release published to npm.
 
 ## [1.0.0] - 2026-09-25
 
-First stable release — "jq for judgment": stream rows through Jev and get typed columns + confidence, at scale.
+First stable release - "jq for judgment": stream rows through Jev and get typed columns + confidence, at scale.
 
 ### Added
 
 - **CLI + library:** JSONL rows on stdin → typed columns + a `_confidence` field, one batched Jev call each.
 - **Questions** inline (`-q 'name:choice/noul/score'`) **or** via a richer **YAML `--config`** (full instructions + criteria).
 - **CSV + JSONL** for input and stdout (`--format`); `--escalate 'conf<0.6'` splits uncertain rows to a review file, pipeline-safe non-zero exit (`--allow-review` opts out).
-- **`--eval labeled.jsonl`** — per-question agreement against a hand-labeled sample (truth stripped from the state); measure accuracy on your own data before a large run.
+- **`--eval labeled.jsonl`** - per-question agreement against a hand-labeled sample (truth stripped from the state); measure accuracy on your own data before a large run.
 - **`--dedupe`** (skip identical states) and a **`--rate` limiter** (token bucket) for large jobs.
 - Pure tested core (`parseQuestions`, `answersToColumns`, `parseEscalate`, `matches`), a bounded-concurrency streaming mapper (`mapPool`), and the `classify()` library API.
 - Shared `JevProvider` port (TypeSafe + Cloudflare); onboarded onto the Foundry gate.

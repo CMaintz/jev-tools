@@ -3,7 +3,7 @@ import type { Question } from '@cmaintz/jev-core';
 
 /**
  * Translate the declarative config into a batch of Jev questions.
- * Pure. All questions ride one request — adding more is near-free.
+ * Pure. All questions ride one request - adding more is near-free.
  */
 export function buildQuestions(config: TriageConfig): Record<string, Question> {
   const questions: Record<string, Question> = {};

@@ -1,4 +1,4 @@
-# Example config — copy to .github/jev-triage.yml in your repo.
+# Example config - copy to .github/jev-triage.yml in your repo.
 provider: typesafe # typesafe (first-party, one secret) | cloudflare (Workers AI)
 model: jev-latest # tracks the recommended model; pin a version (e.g. jev-1.13.0) for reproducibility
 escalate_below: 0.6 # confidence gate for choice/score answers
@@ -38,7 +38,7 @@ questions:
     min: 0.7
     alert: true
 
-# Deterministic — resolved in code, never sent to Jev.
+# Deterministic - resolved in code, never sent to Jev.
 routing:
   bug: '@your-org/backend'
   docs: '@your-org/docs'

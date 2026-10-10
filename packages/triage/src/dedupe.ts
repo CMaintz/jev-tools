@@ -25,7 +25,7 @@ export function buildDedupeQuestion(candidates: DedupeCandidate[]): Record<strin
 /**
  * Retrieve-then-judge: find candidates by title keywords, then let Jev pick the duplicate
  * (or "none") from a bounded set. Returns the duplicate issue number, or null.
- * Jev is text-only and can't retrieve — retrieval is code, judgment is Jev.
+ * Jev is text-only and can't retrieve - retrieval is code, judgment is Jev.
  */
 export async function findDuplicate(
   newIssue: { number: number; title: string; body: string | null | undefined },

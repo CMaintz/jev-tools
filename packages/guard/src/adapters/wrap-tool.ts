@@ -10,7 +10,7 @@ export interface WrapToolOptions extends GuardOptions, EnforceOptions {
 
 /**
  * Wrap a tool's execute function so every call is guarded (and enforced) before it runs.
- * Framework-agnostic — the LangChain / Vercel adapters are thin specializations of this.
+ * Framework-agnostic - the LangChain / Vercel adapters are thin specializations of this.
  *
  * @returns a drop-in replacement execute that throws `GuardBlockedError` on block/denied-hold.
  */
