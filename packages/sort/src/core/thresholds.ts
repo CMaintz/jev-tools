@@ -70,15 +70,16 @@ function questionGate(doc: ThresholdsFile, id: string): PickedGate {
 }
 
 /**
- * The cut-point for this run's questions: the composite (row-level) gate when the file has
- * one, else the single gated question's own gate. jev-sort escalates confidence < threshold,
- * the complement of jev-eval's "covered at confidence >= threshold", so it maps directly.
+ * The cut-point for this run's questions: with one gated question, row confidence is that
+ * question's confidence, so its own gate; with several, the composite (row-level) gate.
+ * jev-sort escalates confidence < threshold, the complement of jev-eval's "covered at
+ * confidence >= threshold", so it maps directly.
  */
 export function pickGate(doc: ThresholdsFile, questions: Record<string, Question>): PickedGate {
   const ids = gatedIds(questions);
   if (ids.length === 0) throw new Error('--thresholds: nothing to gate on (every question is a noul)');
-  if (doc.composite) return compositeGate(doc, ids);
   if (ids.length === 1) return questionGate(doc, ids[0] as string);
+  if (doc.composite) return compositeGate(doc, ids);
   throw new Error(
     `thresholds file has no composite gate for [${ids.join(', ')}] ` +
       '(jev-eval refused or found the row gate unstable; see its report)',

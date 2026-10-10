@@ -52,7 +52,10 @@ describe('pickGate', () => {
 
   it('refuses a composite measured on other questions', () => {
     expect(() => pickGate(doc(), { team, other: sentiment })).toThrow(/gates \[sentiment, team\] but this run gates/);
-    expect(() => pickGate(doc(), { team })).toThrow(/re-run jev-eval/);
+  });
+
+  it("uses a single gated question's own gate even when the file has a composite", () => {
+    expect(pickGate(doc(), { team, urgent })).toMatchObject({ source: 'team', gate: { threshold: 0.8 } });
   });
 
   it("uses the single gated question's own gate when there is no composite", () => {
