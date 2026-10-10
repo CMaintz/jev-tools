@@ -9,8 +9,9 @@ export type JevEnv = Readonly<Record<string, string | undefined>>;
  * caller can fail open to its non-Jev behavior (Jev stays strictly opt-in).
  *
  * Reads: JEV_PROVIDER (typesafe | cloudflare, default typesafe), JEV_API_KEY, JEV_MODEL,
- * CLOUDFLARE_ACCOUNT_ID (cloudflare only), and TYPESAFE_AI_BASE_URL (self-host, proxy or mock).
- * Empty strings count as unset; any JEV_PROVIDER other than `cloudflare` means TypeSafe.
+ * CLOUDFLARE_ACCOUNT_ID (cloudflare only), TYPESAFE_AI_BASE_URL (self-host, proxy or mock) and
+ * JEV_TIMEOUT_MS (per-attempt timeout). Empty strings count as unset, and so does a JEV_TIMEOUT_MS
+ * that is not a positive number; any JEV_PROVIDER other than `cloudflare` means TypeSafe.
  */
 export function providerFromEnv(env: JevEnv = globalThis.process?.env ?? {}): JevProvider | null {
   const apiKey = env.JEV_API_KEY;
@@ -22,5 +23,11 @@ export function providerFromEnv(env: JevEnv = globalThis.process?.env ?? {}): Je
     ...(env.JEV_MODEL ? { model: env.JEV_MODEL } : {}),
     ...(env.CLOUDFLARE_ACCOUNT_ID ? { accountId: env.CLOUDFLARE_ACCOUNT_ID } : {}),
     ...(env.TYPESAFE_AI_BASE_URL ? { baseUrl: env.TYPESAFE_AI_BASE_URL } : {}),
+    ...timeoutFrom(env.JEV_TIMEOUT_MS),
   });
+}
+
+function timeoutFrom(raw: string | undefined): { timeoutMs?: number } {
+  const ms = Number(raw);
+  return raw && Number.isFinite(ms) && ms > 0 ? { timeoutMs: ms } : {};
 }

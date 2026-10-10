@@ -14,6 +14,8 @@ export interface ProviderConfig {
   accountId?: string;
   /** TypeSafe base URL override (proxy, self-host, mock). Ignored for `cloudflare`. */
   baseUrl?: string;
+  /** per-attempt request timeout in ms. Default 30 000. */
+  timeoutMs?: number;
 }
 
 /** TypeSafe model aliases and their Workers AI ids, so one config works on either backend. */
@@ -25,12 +27,14 @@ const CLOUDFLARE_MODEL_ALIASES: Readonly<Record<string, string>> = { 'jev-latest
  * is unknown. See `providerFromEnv` for the fail-open, environment-driven variant.
  */
 export function createProvider(config: ProviderConfig): JevProvider {
-  const { provider = 'typesafe', apiKey, model } = config;
+  const { provider = 'typesafe', apiKey, model, timeoutMs } = config;
   if (!apiKey) throw new JevRequestError('Jev provider needs an API key');
-  if (provider === 'typesafe') return new TypeSafeProvider(apiKey, model || undefined, config.baseUrl || undefined);
+  if (provider === 'typesafe') {
+    return new TypeSafeProvider(apiKey, model || undefined, config.baseUrl || undefined, timeoutMs);
+  }
   if (provider !== 'cloudflare') throw new JevRequestError(`unknown Jev provider "${String(provider)}"`);
   if (!config.accountId) throw new JevRequestError('Cloudflare Jev provider needs an account id');
-  return new CloudflareProvider(config.accountId, apiKey, cloudflareModel(model));
+  return new CloudflareProvider(config.accountId, apiKey, cloudflareModel(model), timeoutMs);
 }
 
 function cloudflareModel(model: string | undefined): string | undefined {
