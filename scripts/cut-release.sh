@@ -36,6 +36,8 @@ package_version() { node -p "require('./packages/$1/package.json').version"; }
 
 tag_exists() { git rev-parse -q --verify "refs/tags/$1" > /dev/null; }
 
+newest_tag() { git tag -l "$1-v*" --sort=-v:refname | head -n 1; } # <pkg>: its last release, if any
+
 version_commit() { # <pkg> <version>: the commit that set this version in package.json
   git log -1 --format=%h -S"\"version\": \"$2\"" -- "packages/$1/package.json"
 }
@@ -111,8 +113,11 @@ main() {
   if tag_exists "$PKG-v$cur"; then
     last="$PKG-v$cur"
     [ "$ver" = "$cur" ] && die "$cur is already released; pick a bump"
-  elif [ "$ver" != "$cur" ]; then
-    last=$(version_commit "$PKG" "$cur")
+  else
+    # The version was bumped by hand without a release: start after the newest release tag,
+    # so the changelog does not repeat what earlier releases already listed.
+    last=$(newest_tag "$PKG")
+    [ -z "$last" ] && [ "$ver" != "$cur" ] && last=$(version_commit "$PKG" "$cur")
   fi
   step "release $PKG $cur -> $ver ($tag)"
 
