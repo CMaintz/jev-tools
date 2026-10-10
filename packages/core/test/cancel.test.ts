@@ -18,6 +18,13 @@ afterEach(() => {
 });
 
 describe('cancellation', () => {
+  it('never starts a request once the signal has aborted', async () => {
+    const fetchMock = hangingFetch();
+    const p = postJson('https://x.test', {}, {}, { signal: AbortSignal.abort(new Error('too late')) });
+    await expect(p).rejects.toThrow('too late');
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   it('rejects with the caller abort reason, not a timeout', async () => {
     hangingFetch();
     const ctl = new AbortController();

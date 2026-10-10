@@ -42,6 +42,7 @@ export async function postJson(
 }
 
 async function fetchOnce(url: string, init: RequestInit, timeoutMs: number, signal?: AbortSignal): Promise<Response> {
+  signal?.throwIfAborted();
   const timeout = AbortSignal.timeout(timeoutMs);
   try {
     return await fetch(url, { ...init, signal: signal ? AbortSignal.any([signal, timeout]) : timeout });
