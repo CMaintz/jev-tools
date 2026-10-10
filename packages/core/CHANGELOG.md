@@ -4,16 +4,6 @@
 
 ### Features
 
-* structured prompts and a request timeout setting (9b848f7)
-
-### Bug Fixes
-
-* do not start a request once the signal has aborted (1f618b7)
-
-## 0.4.0
-
-### Features
-
 - Structured prompts: question `instructions` and `criteria` accept a JSON object or array as well as a string (new `JevText` and `JsonValue` types), matching the API. Choice options may map to `null`. The builders take the wider types, and `validateQuestions` treats an empty object or array as empty instructions.
 - Request timeout setting: `timeoutMs` on `createProvider`, as the 4th constructor argument of `TypeSafeProvider` and `CloudflareProvider`, per call via `evaluate(req, { timeoutMs })`, and `JEV_TIMEOUT_MS` in `providerFromEnv`. `DEFAULT_TIMEOUT_MS` (30 s) is exported.
 

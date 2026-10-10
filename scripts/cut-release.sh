@@ -6,7 +6,8 @@
 # From a clean main that is in sync with origin, it:
 #   1. bumps packages/<pkg>/package.json (and the lock file),
 #   2. prepends a CHANGELOG section built from the conventional commits that touched
-#      packages/<pkg> since its last <pkg>-vX.Y.Z tag,
+#      packages/<pkg> since its last <pkg>-vX.Y.Z tag (a hand-written "## X.Y.Z" section
+#      is kept instead, and only gains the compare link),
 #   3. commits, tags <pkg>-vX.Y.Z, pushes both and creates the GitHub release.
 # The tag push runs .github/workflows/publish.yml, which publishes core/guard/sort to
 # npm. triage is a GitHub Action (consumed by ref), so its release stops at the tag.
@@ -89,6 +90,15 @@ build_changelog_section() { # <since-ref-or-empty> <tag> <ver> <repo> <pkg>
   echo
 }
 
+# A hand-written "## X.Y.Z" section is kept as is; only its heading gets the compare link and date.
+has_handwritten_section() { [ -f "$1" ] && grep -qx "## $2" "$1"; } # <changelog> <ver>
+
+link_heading() { # <changelog> <ver> <section-file>
+  local h
+  h=$(head -n 1 "$3")
+  awk -v v="## $2" -v h="$h" '!done && $0 == v { print h; done=1; next } { print }' "$1" > "$1.new" && mv "$1.new" "$1"
+}
+
 # Prepend the section above the first "## " heading, creating the file if needed.
 insert_changelog() { # <changelog> <section-file>
   [ -f "$1" ] || printf '# Changelog\n\n' > "$1"
@@ -132,7 +142,11 @@ main() {
   if [ "$ver" != "$cur" ]; then
     run "npm version '$ver' --workspace 'packages/$PKG' --no-git-tag-version > /dev/null"
   fi
-  run "insert_changelog 'packages/$PKG/CHANGELOG.md' '$section'"
+  if has_handwritten_section "packages/$PKG/CHANGELOG.md" "$ver"; then
+    run "link_heading 'packages/$PKG/CHANGELOG.md' '$ver' '$section'"
+  else
+    run "insert_changelog 'packages/$PKG/CHANGELOG.md' '$section'"
+  fi
   run "git add 'packages/$PKG/package.json' 'packages/$PKG/CHANGELOG.md' package-lock.json"
   run "git commit -q -m 'chore(release): $tag'"
   run "git tag '$tag'"
