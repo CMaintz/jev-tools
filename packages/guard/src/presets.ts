@@ -89,7 +89,11 @@ export function sqlPolicy(opts: PresetOptions = {}): GuardPolicy {
   };
 }
 
-/** Money movement — high-stakes: any transfer holds for a human, near-certainty required. */
+/**
+ * Money movement - high-stakes: any transfer holds for a human. `irreversible` is a second,
+ * independent reading of the same risk, so a transfer that `movesMoney` under-reads (an
+ * oddly worded payout, a crypto send) still holds. It only ever adds holds, never allows.
+ */
 export function paymentsPolicy(opts: PresetOptions = {}): GuardPolicy {
   const at = cutoff(opts.cutoffs);
   return {
@@ -97,6 +101,9 @@ export function paymentsPolicy(opts: PresetOptions = {}): GuardPolicy {
       movesMoney: noul('Does this move money or change a financial balance/subscription?'),
       irreversible: noul('Is this transfer hard to reverse (external payout, crypto, wire)?'),
     },
-    decide: (r) => (num(r.movesMoney) >= at('movesMoney', 'hold', 0.5) ? 'hold' : 'allow'),
+    decide: (r) =>
+      num(r.movesMoney) >= at('movesMoney', 'hold', 0.5) || num(r.irreversible) >= at('irreversible', 'hold', 0.5)
+        ? 'hold'
+        : 'allow',
   };
 }

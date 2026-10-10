@@ -50,10 +50,17 @@ describe('presets', () => {
     expect(p.decide({ mutating: ro(0.1), unscoped: ro(0) })).toBe('allow');
   });
 
-  it('paymentsPolicy: hold any money movement, else allow', () => {
+  it('paymentsPolicy: hold any money movement or irreversible transfer, else allow', () => {
     const p = paymentsPolicy();
     expect(p.decide({ movesMoney: ro(0.6), irreversible: ro(0.9) })).toBe('hold');
+    expect(p.decide({ movesMoney: ro(0.3), irreversible: ro(0.8) })).toBe('hold');
     expect(p.decide({ movesMoney: ro(0.1), irreversible: ro(0) })).toBe('allow');
+    expect(
+      paymentsPolicy({ cutoffs: { irreversible: { hold: 0.9 } } }).decide({
+        movesMoney: ro(0.3),
+        irreversible: ro(0.8),
+      }),
+    ).toBe('allow');
   });
 
   it('cutoffs override only the given dimension and role', () => {
