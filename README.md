@@ -24,7 +24,7 @@ npm install @cmaintz/jev-core      # the shared client, to build your own tool
 The Action needs no install. Reference it by path:
 
 ```yaml
-- uses: CMaintz/jev-tools/packages/triage@main # pin a jev-triage-v* tag or a commit SHA
+- uses: CMaintz/jev-tools/packages/triage@main # pin a triage-v* tag or a commit SHA
   with:
     jev-api-key: ${{ secrets.JEV_API_KEY }}
 ```

@@ -14,7 +14,7 @@ jobs:
   triage:
     runs-on: ubuntu-latest
     steps:
-      - uses: CMaintz/jev-tools/packages/triage@main # pin a jev-triage-v* tag or a full commit SHA
+      - uses: CMaintz/jev-tools/packages/triage@main # pin a triage-v* tag or a full commit SHA
         with:
           jev-api-key: ${{ secrets.JEV_API_KEY }}
 ```
