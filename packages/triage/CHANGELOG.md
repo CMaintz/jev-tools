@@ -2,11 +2,20 @@
 
 All notable changes to this project are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## After 1.0.0, before the move to jev-tools
+## 1.1.0
+
+First release from the jev-tools monorepo. `CMaintz/jev-triage@v1` picks it up through its pin.
 
 ### Changed
 
 - Default model is now `jev-latest` (was the pinned `jev-1.13.0`), tracking the recommended model. Set `model:` in config to pin a version for reproducibility.
+- The Action runs on Node 24.
+
+### Fixed
+
+- `model:` is honoured with `provider: cloudflare`; it was dropped before.
+- A hung Jev request times out after 30 s per attempt, and a malformed answer counts as no answer instead of being used.
+- A failure writing the job summary now fails the run instead of being an unhandled rejection.
 
 ## [1.0.0] - 2026-09-24
 
