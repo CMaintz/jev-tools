@@ -16,17 +16,13 @@ export interface PostJsonOptions {
  * Minimal POST-JSON helper with the retry policy TypeSafe's docs recommend:
  * exponential backoff on 429 (rate limited) and 529 (overloaded). Each attempt is
  * bounded by an AbortSignal timeout so a hung connection can't stall the caller.
- *
- * The 4th argument also accepts a bare number, read as `maxAttempts`, matching the
- * older standalone copies of this client.
  */
 export async function postJson(
   url: string,
   headers: Record<string, string>,
   body: unknown,
-  opts: PostJsonOptions | number = {},
+  { maxAttempts = 4, timeoutMs = DEFAULT_TIMEOUT_MS, signal }: PostJsonOptions = {},
 ): Promise<unknown> {
-  const { maxAttempts = 4, timeoutMs = DEFAULT_TIMEOUT_MS, signal } = typeof opts === 'number' ? { maxAttempts: opts } : opts;
   const init = {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...headers },

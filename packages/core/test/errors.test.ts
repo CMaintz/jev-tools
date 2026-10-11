@@ -54,14 +54,15 @@ describe('typed errors', () => {
   });
 });
 
-describe('postJson positional maxAttempts', () => {
-  it('reads a bare number as maxAttempts', async () => {
+describe('postJson options', () => {
+  it('no longer reads a bare number as maxAttempts', async () => {
     vi.useFakeTimers();
     const fetchMock = vi.fn<typeof fetch>(async () => new Response('', { status: 529 }));
     vi.stubGlobal('fetch', fetchMock);
-    const assertion = expect(postJson('https://x.test', {}, {}, 2)).rejects.toThrow(JevHttpError);
+    // a JS caller on the pre-1.0 form: the number is ignored and the default of 4 attempts applies
+    const assertion = expect(postJson('https://x.test', {}, {}, 2 as never)).rejects.toThrow(JevHttpError);
     await vi.runAllTimersAsync();
     await assertion;
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenCalledTimes(4);
   });
 });

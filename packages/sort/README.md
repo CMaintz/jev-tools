@@ -44,7 +44,7 @@ Run `jev-sort --help` for the full list.
 ```ts
 import { choice, classify, isFailed, noul, TypeSafeProvider } from '@cmaintz/jev-sort';
 
-const provider = new TypeSafeProvider(process.env.JEV_API_KEY!);
+const provider = new TypeSafeProvider({ apiKey: process.env.JEV_API_KEY! });
 const questions = {
   team: choice({ billing: 'payment or charge issues', tech: 'bugs, errors, outages' }, 'Which team?'),
   urgent: noul('Does the message convey urgency?'),

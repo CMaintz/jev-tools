@@ -6,6 +6,22 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 
 - LangChain **Python** parity (a PyPI package mirroring the core).
 
+## 2.0.0
+
+### Breaking
+
+- The re-exported `TypeSafeProvider` and `CloudflareProvider` take an options object: `new TypeSafeProvider({ apiKey })`, `new CloudflareProvider({ accountId, apiToken })`.
+- Requires Node 22 or newer, and `@cmaintz/jev-core` ^1.0.0.
+
+### Added
+
+- `escalateBelowFrom(thresholds, policy, model?)` sets `escalateBelow` from a jev-eval thresholds.json, picking the gate the way jev-sort does, and warns on a model mismatch or a reworded dimension.
+- `noulCutoffsFrom(thresholds, policy, model?)` reads noul cut-offs from `yesAt`: the strictest precision target sets block, the loosest sets hold. Presets accept `{ cutoffs }`. A single target sets hold only.
+
+### Changed
+
+- `paymentsPolicy` also holds when a transfer is irreversible, not only when it moves money.
+
 ## [1.1.0] - 2026-10-09
 
 First release published to npm.

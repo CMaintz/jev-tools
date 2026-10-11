@@ -1,4 +1,4 @@
-import { stableStringify, type JevProvider, type Question } from '@cmaintz/jev-core';
+import { stableStringify, withRateLimit, type JevProvider, type Question } from '@cmaintz/jev-core';
 import { mapPool } from './map.js';
 import { answersToColumns } from './core/columns.js';
 import type { RateLimiter } from './rate-limit.js';
@@ -51,6 +51,7 @@ export async function* classify(
 ): AsyncGenerator<ClassifyResult> {
   const threshold = opts.escalateBelow ?? 0;
   const cache = opts.dedupe ? new Map<string, Cached>() : undefined;
+  const provider = opts.limiter ? withRateLimit(opts.provider, opts.limiter) : opts.provider;
 
   const classifyRow = async (row: Record<string, unknown>): Promise<ClassifiedRow> => {
     const key = cache ? stableStringify(row) : undefined;
@@ -66,8 +67,7 @@ export async function* classify(
         ...(usage ? { usage } : {}),
       };
     }
-    await opts.limiter?.acquire();
-    const { answers, usage } = await opts.provider.evaluate({ state: row, questions });
+    const { answers, usage } = await provider.evaluate({ state: row, questions });
     const missing = Object.keys(questions).filter((q) => !(q in answers));
     if (missing.length > 0) throw new Error(`no valid answer for: ${missing.join(', ')}`);
     const { columns, confidence } = answersToColumns(answers);

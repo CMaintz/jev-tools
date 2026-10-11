@@ -2,6 +2,17 @@ import type { EvaluateOptions, JevProvider, JevRequest, JevResponse } from './je
 import { DEFAULT_TIMEOUT_MS, postJson } from './http.js';
 import { parseJevResponse } from './validate.js';
 
+export interface CloudflareOptions {
+  /** Cloudflare account id. */
+  accountId: string;
+  /** Cloudflare API token with Workers AI access. */
+  apiToken: string;
+  /** Workers AI model id. Default `typesafe/jev`. */
+  model?: string | undefined;
+  /** per-attempt request timeout in ms. Default 30 000. */
+  timeoutMs?: number | undefined;
+}
+
 /**
  * Cloudflare Workers AI adapter. Model slug: `typesafe/jev`.
  *
@@ -12,12 +23,17 @@ import { parseJevResponse } from './validate.js';
  *   auth:     Authorization: Bearer {token}
  */
 export class CloudflareProvider implements JevProvider {
-  constructor(
-    private readonly accountId: string,
-    private readonly apiToken: string,
-    private readonly model = 'typesafe/jev',
-    private readonly timeoutMs = DEFAULT_TIMEOUT_MS,
-  ) {}
+  private readonly accountId: string;
+  private readonly apiToken: string;
+  private readonly model: string;
+  private readonly timeoutMs: number;
+
+  constructor(opts: CloudflareOptions) {
+    this.accountId = opts.accountId;
+    this.apiToken = opts.apiToken;
+    this.model = opts.model ?? 'typesafe/jev';
+    this.timeoutMs = opts.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+  }
 
   async evaluate(req: JevRequest, opts: EvaluateOptions = {}): Promise<JevResponse> {
     const url = `https://api.cloudflare.com/client/v4/accounts/${this.accountId}/ai/run`;

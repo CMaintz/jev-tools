@@ -35,7 +35,7 @@ questions:
 describe.skipIf(!KEY)('live Jev triage smoke', () => {
   it('classifies a real bug report end-to-end', async () => {
     const config = parseConfig(CONFIG);
-    const provider = new TypeSafeProvider(KEY as string);
+    const provider = new TypeSafeProvider({ apiKey: KEY as string });
     const state = buildState({
       title: 'App crashes on export to PDF',
       body: 'Steps: open a document, File > Export, nothing happens. Console shows a null reference.',

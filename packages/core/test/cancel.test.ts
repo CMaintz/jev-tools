@@ -67,7 +67,7 @@ describe('cancellation', () => {
   it('providers forward the signal to fetch', async () => {
     const fn = hangingFetch();
     const ctl = new AbortController();
-    const p = new TypeSafeProvider('k').evaluate({ state: 1, questions: {} }, { signal: ctl.signal });
+    const p = new TypeSafeProvider({ apiKey: 'k' }).evaluate({ state: 1, questions: {} }, { signal: ctl.signal });
     ctl.abort(new Error('bye'));
     await expect(p).rejects.toThrow('bye');
     expect(fn.mock.calls[0]?.[1]?.signal).toBeInstanceOf(AbortSignal);
