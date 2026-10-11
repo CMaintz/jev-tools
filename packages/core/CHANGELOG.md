@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.4.1
+## [0.4.1](https://github.com/CMaintz/jev-tools/compare/core-v0.4.0...core-v0.4.1) (2026-10-11)
 
 ### Features
 
