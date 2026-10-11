@@ -15,7 +15,7 @@
   },
   "type": "module",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "build": "ncc build src/main.ts -o dist --minify",
@@ -25,7 +25,7 @@
   "dependencies": {
     "@actions/core": "^3.0.1",
     "@actions/github": "^9.1.1",
-    "@cmaintz/jev-core": "^0.4.0",
+    "@cmaintz/jev-core": "^1.0.0",
     "js-yaml": "^4.1.0"
   },
   "devDependencies": {

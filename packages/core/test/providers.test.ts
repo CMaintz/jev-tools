@@ -24,7 +24,7 @@ afterEach(() => {
 describe('TypeSafeProvider', () => {
   it('posts model, state and questions to /systemone with a bearer key', async () => {
     const fetchMock = mockFetch(json(body));
-    const res = await new TypeSafeProvider('key-1').evaluate(req);
+    const res = await new TypeSafeProvider({ apiKey: 'key-1' }).evaluate(req);
 
     expect(res.answers.spam).toEqual({ type: 'noul', noul: 0.1 });
     const [url, init] = fetchMock.mock.calls[0]!;
@@ -37,7 +37,7 @@ describe('TypeSafeProvider', () => {
 describe('CloudflareProvider', () => {
   it('posts to the account ai/run endpoint with the model in the body', async () => {
     const fetchMock = mockFetch(json(body));
-    await new CloudflareProvider('acct', 'tok').evaluate(req);
+    await new CloudflareProvider({ accountId: 'acct', apiToken: 'tok' }).evaluate(req);
 
     const [url, init] = fetchMock.mock.calls[0]!;
     expect(url).toBe('https://api.cloudflare.com/client/v4/accounts/acct/ai/run');
@@ -99,12 +99,12 @@ describe('postJson timeouts and bodies', () => {
 describe('providers validate the response', () => {
   it('rejects a response without an answers object', async () => {
     mockFetch(json({ error: 'nope' }));
-    await expect(new TypeSafeProvider('k').evaluate(req)).rejects.toThrow('no answers object');
+    await expect(new TypeSafeProvider({ apiKey: 'k' }).evaluate(req)).rejects.toThrow('no answers object');
   });
 
   it('drops malformed answers instead of passing them through', async () => {
     mockFetch(json({ model: 'm', answers: { spam: { type: 'noul', noul: 'high' } } }));
-    const res = await new TypeSafeProvider('k').evaluate(req);
+    const res = await new TypeSafeProvider({ apiKey: 'k' }).evaluate(req);
     expect(res.answers).toEqual({});
   });
 });

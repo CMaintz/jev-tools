@@ -9,7 +9,9 @@ export type {
   Question,
 } from './jev-provider.js';
 export { TypeSafeProvider } from './typesafe.js';
+export type { TypeSafeOptions } from './typesafe.js';
 export { CloudflareProvider } from './cloudflare.js';
+export type { CloudflareOptions } from './cloudflare.js';
 export { DEFAULT_TIMEOUT_MS, postJson } from './http.js';
 export type { PostJsonOptions } from './http.js';
 export { parseJevResponse } from './validate.js';

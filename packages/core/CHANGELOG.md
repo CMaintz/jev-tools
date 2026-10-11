@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.0.0
+
+The API is now stable and follows semver.
+
+### Breaking
+
+- `TypeSafeProvider` and `CloudflareProvider` take an options object: `new TypeSafeProvider({ apiKey, model, baseUrl, timeoutMs })`, `new CloudflareProvider({ accountId, apiToken, model, timeoutMs })`. `TypeSafeOptions` and `CloudflareOptions` are exported.
+- `postJson`'s 4th argument is options only; a bare number is no longer read as `maxAttempts`.
+- Requires Node 22 or newer (Node 20 reached end of life in April 2026).
+
+### Changed
+
+- README notes that the default `jev-latest` model can change answers without a release; pin `model` for reproducible results.
+
 ## [0.4.1](https://github.com/CMaintz/jev-tools/compare/core-v0.4.0...core-v0.4.1) (2026-10-11)
 
 ### Features

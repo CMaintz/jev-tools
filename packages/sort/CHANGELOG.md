@@ -2,22 +2,33 @@
 
 All notable changes to this project are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.0.0
+
+### Breaking
+
+- The re-exported `TypeSafeProvider` and `CloudflareProvider` take an options object: `new TypeSafeProvider({ apiKey })`, `new CloudflareProvider({ accountId, apiToken })`.
+- Requires Node 22 or newer, and `@cmaintz/jev-core` ^1.0.0.
+
+### Added
+
+- `--thresholds` warns when a gated question was reworded since jev-eval measured it (needs jev-eval 1.2.0). `--config` help says YAML or JSON.
+
 ## [1.2.0](https://github.com/CMaintz/jev-tools/compare/sort-v1.1.1...sort-v1.2.0) (2026-10-10)
 
 ### Features
 
-* structured prompts and a request timeout setting (9b848f7)
-* --thresholds reads the escalation bar from a jev-eval thresholds.json (b2a198d)
+- structured prompts and a request timeout setting (9b848f7)
+- --thresholds reads the escalation bar from a jev-eval thresholds.json (b2a198d)
 
 ### Bug Fixes
 
-* use a single gated question's own gate even when the file has a composite (def32b5)
+- use a single gated question's own gate even when the file has a composite (def32b5)
 
 ## [1.1.1](https://github.com/CMaintz/jev-tools/compare/sort-v1.1.0...sort-v1.1.1) (2026-10-10)
 
 ### Bug Fixes
 
-* honor the model setting for Cloudflare in sort and triage (65352cd)
+- honor the model setting for Cloudflare in sort and triage (65352cd)
 
 ## [1.1.0] - 2026-10-09
 

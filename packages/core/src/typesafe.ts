@@ -2,6 +2,17 @@ import type { EvaluateOptions, JevProvider, JevRequest, JevResponse } from './je
 import { DEFAULT_TIMEOUT_MS, postJson } from './http.js';
 import { parseJevResponse } from './validate.js';
 
+export interface TypeSafeOptions {
+  /** TypeSafe API key. */
+  apiKey: string;
+  /** model id. Default `jev-latest`. */
+  model?: string | undefined;
+  /** API base URL (proxy, self-host, mock). Default `https://api.typesafe.ai/v1`. */
+  baseUrl?: string | undefined;
+  /** per-attempt request timeout in ms. Default 30 000. */
+  timeoutMs?: number | undefined;
+}
+
 /**
  * TypeSafe first-party adapter.
  *
@@ -16,12 +27,17 @@ import { parseJevResponse } from './validate.js';
  * `parseJevResponse` validates the answers against the questions asked.
  */
 export class TypeSafeProvider implements JevProvider {
-  constructor(
-    private readonly apiKey: string,
-    private readonly model = 'jev-latest',
-    private readonly baseUrl = 'https://api.typesafe.ai/v1',
-    private readonly timeoutMs = DEFAULT_TIMEOUT_MS,
-  ) {}
+  private readonly apiKey: string;
+  private readonly model: string;
+  private readonly baseUrl: string;
+  private readonly timeoutMs: number;
+
+  constructor(opts: TypeSafeOptions) {
+    this.apiKey = opts.apiKey;
+    this.model = opts.model ?? 'jev-latest';
+    this.baseUrl = opts.baseUrl ?? 'https://api.typesafe.ai/v1';
+    this.timeoutMs = opts.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+  }
 
   async evaluate(req: JevRequest, opts: EvaluateOptions = {}): Promise<JevResponse> {
     const json = await postJson(

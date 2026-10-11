@@ -17,7 +17,7 @@ npm install @cmaintz/jev-guard
 ```ts
 import { guard, noul, score, TypeSafeProvider, type GuardPolicy } from '@cmaintz/jev-guard';
 
-const provider = new TypeSafeProvider(process.env.JEV_API_KEY!);
+const provider = new TypeSafeProvider({ apiKey: process.env.JEV_API_KEY! });
 
 const policy: GuardPolicy = {
   dimensions: {
