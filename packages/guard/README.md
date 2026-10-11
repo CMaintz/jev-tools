@@ -137,7 +137,7 @@ In your own policy, read `cutoffs.<dimension>?.block ?? <default>` inside `decid
 ## Limitations
 
 - **Not a security boundary.** Jev is probabilistic ([67.8% agreement](https://evals.typesafe.ai/) with frontier-model reference labels on TypeSafe's own evals), and a determined prompt injection can get through. Keep sandboxing, least-privilege credentials and allowlists; this is a cheap semantic layer on top of them.
-- **Latency on the hot path.** Each guarded call waits for one round trip (TypeSafe quotes 70–500 ms). Use `perTool` for cheap, safe tools.
+- **Latency on the hot path.** Each guarded call waits for one round trip (TypeSafe quotes 70-500 ms). Use `perTool` for cheap, safe tools.
 - **No rationale.** Jev returns numbers, not reasons. Log every verdict through `audit`, and show a `hold`'s inputs to the human deciding it.
 - **No counting.** Keep quantitative limits ("deletes more than N rows") in code.
 
