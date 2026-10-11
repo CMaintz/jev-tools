@@ -26,7 +26,7 @@ interface RawConfig {
 }
 
 /**
- * YAML config for real work — richer than inline `-q` flags: each question can carry
+ * YAML config for real work - richer than inline `-q` flags: each question can carry
  * full `instructions` + `criteria`, which is what steers Jev well.
  */
 export function parseConfig(raw: string): SortConfig {

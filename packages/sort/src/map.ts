@@ -6,8 +6,8 @@ function toAsyncIterator<T>(source: Iterable<T> | AsyncIterable<T>): AsyncIterat
 
 /**
  * Map a (possibly async, possibly infinite) source through `fn` with bounded
- * concurrency, yielding results as they complete. Memory stays flat — at most
- * `concurrency` items are in flight — so it streams million-row inputs. Order is
+ * concurrency, yielding results as they complete. Memory stays flat - at most
+ * `concurrency` items are in flight - so it streams million-row inputs. Order is
  * not preserved (each output row is self-contained, so joins don't need it).
  */
 export async function* mapPool<T, R>(

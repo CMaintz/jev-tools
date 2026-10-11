@@ -1,8 +1,8 @@
 /**
- * Build the Jev `state` from an issue. Pure — no network, trivially testable.
+ * Build the Jev `state` from an issue. Pure - no network, trivially testable.
  *
  * Jev is text-only and has a bounded context (~32k tokens on Cloudflare), so we send the
- * fields that carry signal and truncate the body. Screenshots/attachments are lost — that
+ * fields that carry signal and truncate the body. Screenshots/attachments are lost - that
  * is a documented limitation, not a bug.
  */
 

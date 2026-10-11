@@ -26,7 +26,7 @@ export interface EnforceOptions {
 
 /**
  * Turn a verdict into an action. Resolves when the call may proceed; throws
- * `GuardBlockedError` when it must not. Pure control-flow over the verdict —
+ * `GuardBlockedError` when it must not. Pure control-flow over the verdict -
  * no Jev call here (that already happened in `guard`).
  */
 export async function enforce(call: ToolCall, result: GuardResult, opts: EnforceOptions = {}): Promise<void> {

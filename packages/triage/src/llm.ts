@@ -88,7 +88,7 @@ export interface OpenAiConfig {
   baseUrl?: string;
 }
 
-/** OpenAI-compatible chat-completions escalator — works with any compatible endpoint via `baseUrl`. */
+/** OpenAI-compatible chat-completions escalator - works with any compatible endpoint via `baseUrl`. */
 export class OpenAiEscalator implements LlmEscalator {
   constructor(private readonly cfg: OpenAiConfig) {}
 

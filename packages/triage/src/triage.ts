@@ -104,7 +104,7 @@ async function apply(
     const dupLine = extra.duplicateOf !== undefined ? `\nPossible duplicate of #${extra.duplicateOf}.` : '';
     await gh.createComment(
       issueNumber,
-      `${MARKER}\n**Jev triage (dry run)** — would apply: \`${decision.labels.join('`, `') || '(none)'}\`${dupLine}`,
+      `${MARKER}\n**Jev triage (dry run)** - would apply: \`${decision.labels.join('`, `') || '(none)'}\`${dupLine}`,
     );
     return;
   }

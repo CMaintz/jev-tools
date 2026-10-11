@@ -9,7 +9,7 @@ export interface Decision {
 
 /**
  * Turn Jev's answers into readouts, run the policy, then apply the fail-safes.
- * Pure — no I/O. This is the inverse of jev-triage's gate: here uncertainty must
+ * Pure - no I/O. This is the inverse of jev-triage's gate: here uncertainty must
  * never resolve to `allow`.
  */
 export function decide(answers: Record<string, Answer>, policy: GuardPolicy): Decision {

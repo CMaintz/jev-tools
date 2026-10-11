@@ -4,7 +4,7 @@ import { guard, type GuardOptions } from '../guard.js';
 import { enforce, type EnforceOptions } from '../enforce.js';
 
 /**
- * Structural shape of a Vercel AI SDK tool — declared here so jev-guard carries NO hard
+ * Structural shape of a Vercel AI SDK tool - declared here so jev-guard carries NO hard
  * dependency on the `ai` package. A tool is `tool({ description, inputSchema, execute })`;
  * we only touch `execute`.
  */

@@ -17,7 +17,7 @@ First release published to npm.
 
 ## [1.0.0] - 2026-09-23
 
-First stable release — a framework-agnostic LLM tool-call guardrail powered by TypeSafe AI's Jev.
+First stable release - a framework-agnostic LLM tool-call guardrail powered by TypeSafe AI's Jev.
 
 ### Added
 
@@ -25,12 +25,12 @@ First stable release — a framework-agnostic LLM tool-call guardrail powered by
   over pure, testable modules (`buildState`, `buildQuestions`, `decide` with a fail-safe wrapper).
 - **Typed policy API:** `score` / `noul` / `choice` helpers; a typed `decide` callback (no string DSL);
   `escalateBelow` confidence floor; `perTool` bypass.
-- **Enforcement:** `enforce(call, result)` — `allow` proceeds, `block` throws `GuardBlockedError`,
+- **Enforcement:** `enforce(call, result)` - `allow` proceeds, `block` throws `GuardBlockedError`,
   `hold` asks an `onHold` handler (fail-safe: denies without one); `observe` mode; framework-agnostic `wrapTool()`.
 - **Framework adapters** (dependency-free, subpath exports): `jev-guard/langchain`
   (`jevGuardMiddleware` for LangChain JS's `wrapToolCall`) and `jev-guard/vercel`
   (`guardVercelTool` wrapping a Vercel AI SDK tool's `execute`).
 - **Policy presets:** `shellPolicy` / `filesystemPolicy` / `sqlPolicy` / `paymentsPolicy`.
-- **Verdict caching:** `createCache({ ttlMs, max })` — identical repeat calls skip the Jev round-trip (`fromCache`).
+- **Verdict caching:** `createCache({ ttlMs, max })` - identical repeat calls skip the Jev round-trip (`fromCache`).
 - **Shared `JevProvider` port** (TypeSafe + Cloudflare, `postJson` backoff);
   onboarded onto the Foundry gate.

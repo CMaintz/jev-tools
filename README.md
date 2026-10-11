@@ -60,7 +60,7 @@ Triage issues as they open: see [`packages/triage/examples/`](packages/triage/ex
 
 Figures below are TypeSafe's own published numbers; this repo does not benchmark them.
 
-- Speed and price: TypeSafe quotes 70–500 ms end to end, $0.042 per million input tokens, and free output tokens ([announcement](https://typesafe.ai/blog/introducing-system-one-models-and-jev)).
+- Speed and price: TypeSafe quotes 70-500 ms end to end, $0.042 per million input tokens, and free output tokens ([announcement](https://typesafe.ai/blog/introducing-system-one-models-and-jev)).
 - Accuracy: On [TypeSafe's workflow evals](https://evals.typesafe.ai/), Jev scores 67.8%, measured as agreement with reference labels averaged from two frontier models across four example workflows. That is agreement with other models, not verified ground truth. Either way, treat answers as first-pass judgments; that is why every tool here gates on confidence.
 - Limits: Text only. 64k tokens per request, 32k for state plus the longest question; 40 requests/s ([models page](https://docs.typesafe.ai/models)). No rationale, no generation, no arithmetic: counting, dates and routing tables stay in code.
 
