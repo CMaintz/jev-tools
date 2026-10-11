@@ -10,7 +10,7 @@ export interface ToolCall {
 
 export type Verdict = 'allow' | 'block' | 'hold';
 
-/** A risk dimension — one Jev question the guard asks about the tool call. */
+/** A risk dimension - one Jev question the guard asks about the tool call. */
 export type Dimension =
   | { kind: 'score'; instructions: string; levels: string[] }
   | { kind: 'noul'; instructions: string }
@@ -46,7 +46,7 @@ export type NoulCutoffs = Record<string, { block?: number; hold?: number }>;
 export interface GuardPolicy {
   /** the risk questions, asked in one batched Jev call (adding dimensions is near-free). */
   dimensions: Record<string, Dimension>;
-  /** pure verdict from the readouts — your risk logic, as typed code (not a string DSL). */
+  /** pure verdict from the readouts - your risk logic, as typed code (not a string DSL). */
   decide: (readouts: Record<string, Readout>) => Verdict;
   /**
    * confidence floor: an `allow` leaning on a below-floor score/choice answer fails safe to
@@ -54,6 +54,6 @@ export interface GuardPolicy {
    * noul-only policy should gate through the thresholds in `decide` instead.
    */
   escalateBelow?: number;
-  /** per-tool shortcut evaluated BEFORE any Jev call — e.g. `{ read_file: 'allow' }` to bypass cheap tools. */
+  /** per-tool shortcut evaluated BEFORE any Jev call - e.g. `{ read_file: 'allow' }` to bypass cheap tools. */
   perTool?: Record<string, Verdict>;
 }

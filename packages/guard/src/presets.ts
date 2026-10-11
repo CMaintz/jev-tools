@@ -3,7 +3,7 @@ import { noul, score, type GuardPolicy, type NoulCutoffs, type Readout } from '.
 /**
  * Ready-made policies for the common dangerous tool classes. Use directly, or spread
  * and tweak: `{ ...shellPolicy(), escalateBelow: 0.9, perTool: { echo: 'allow' } }`.
- * These are sensible defaults, not a security boundary — see the README.
+ * These are sensible defaults, not a security boundary - see the README.
  *
  * Only shellPolicy sets `escalateBelow`: it is the only preset with a score dimension,
  * and the confidence floor gates score/choice answers only (a noul has no confidence;
@@ -30,7 +30,7 @@ const cutoff =
   (id: string, role: 'block' | 'hold', builtIn: number): number =>
     cutoffs[id]?.[role] ?? builtIn;
 
-/** Shell/bash execution — the highest-blast-radius tool class. */
+/** Shell/bash execution - the highest-blast-radius tool class. */
 export function shellPolicy(opts: PresetOptions = {}): GuardPolicy {
   const at = cutoff(opts.cutoffs);
   return {
@@ -48,7 +48,7 @@ export function shellPolicy(opts: PresetOptions = {}): GuardPolicy {
   };
 }
 
-/** File writes/deletes — guards against clobbering and escaping the workspace. */
+/** File writes/deletes - guards against clobbering and escaping the workspace. */
 export function filesystemPolicy(opts: PresetOptions = {}): GuardPolicy {
   const at = cutoff(opts.cutoffs);
   return {
@@ -71,7 +71,7 @@ export function filesystemPolicy(opts: PresetOptions = {}): GuardPolicy {
   };
 }
 
-/** SQL execution — blocks unscoped mutations (DELETE/UPDATE without WHERE, DROP, TRUNCATE). */
+/** SQL execution - blocks unscoped mutations (DELETE/UPDATE without WHERE, DROP, TRUNCATE). */
 export function sqlPolicy(opts: PresetOptions = {}): GuardPolicy {
   const at = cutoff(opts.cutoffs);
   return {
