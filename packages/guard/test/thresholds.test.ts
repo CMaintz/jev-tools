@@ -133,7 +133,7 @@ describe('noulCutoffsFrom', () => {
 
   it('maps the strictest target to block and the loosest to hold, skipping score/choice', () => {
     const { cutoffs, provenance, model } = noulCutoffsFrom(fixture, shellPolicy());
-    expect(cutoffs).toEqual({ destructive: { block: 0.86, hold: 0.64 }, exfiltrates: { block: 0.93, hold: 0.93 } });
+    expect(cutoffs).toEqual({ destructive: { block: 0.86, hold: 0.64 }, exfiltrates: { hold: 0.93 } });
     expect(provenance['destructive']?.block).toMatchObject({ target: 0.9, precision: 0.912, n: 412 });
     expect(provenance['destructive']?.hold.target).toBe(0.7);
     expect(model).toBe('jev-latest');
@@ -150,7 +150,9 @@ describe('noulCutoffsFrom', () => {
     const doc = parsed();
     delete (doc['yesAt'] as Record<string, unknown>)['exfiltrates'];
     const one = noulCutoffsFrom(fixture, shellPolicy()).warnings;
-    expect(one).toEqual(['exfiltrates has one yesAt target (0.9); it serves both block and hold']);
+    expect(one).toEqual([
+      "exfiltrates has one yesAt target (0.9); it sets hold only; block keeps the policy's own cut-off",
+    ]);
     const none = noulCutoffsFrom(doc, shellPolicy());
     expect(none.cutoffs).not.toHaveProperty('exfiltrates');
     expect(none.warnings).toEqual(["exfiltrates has no yesAt cut-point; keeping the policy's own cut-off"]);

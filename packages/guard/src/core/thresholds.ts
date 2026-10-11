@@ -166,7 +166,7 @@ export interface NoulCutoffsFromThresholds {
   /** per noul dimension: the raw P(yes) at which it counts toward `block` and toward `hold`. */
   cutoffs: NoulCutoffs;
   /** the jev-eval measurement behind each cut-off, for the audit log. */
-  provenance: Record<string, { block: YesCut; hold: YesCut }>;
+  provenance: Record<string, { block?: YesCut; hold: YesCut }>;
   model: string;
   /** soft warnings (model mismatch, reworded or unmeasured dimension); the cut-offs are still usable. */
   warnings: string[];
@@ -179,15 +179,21 @@ export function noulIds(questions: Record<string, Question>): string[] {
     .sort();
 }
 
-/** Strictest measured target for `block` (a wrong block is costly), loosest for `hold` (fail-safe, favors recall). */
-function rolesFor(cuts: YesCut[]): { block: YesCut; hold: YesCut } {
+/**
+ * Strictest measured target for `block` (a wrong block is costly), loosest for `hold`
+ * (fail-safe, favors recall). With one target there is no strict reading to block on, so it
+ * sets `hold` only and `block` keeps the policy's own cut-off.
+ */
+function rolesFor(cuts: YesCut[]): { block?: YesCut; hold: YesCut } {
   const sorted = [...cuts].sort((a, b) => b.target - a.target);
-  return { block: sorted[0] as YesCut, hold: sorted[sorted.length - 1] as YesCut };
+  const hold = sorted[sorted.length - 1] as YesCut;
+  return sorted.length > 1 ? { block: sorted[0] as YesCut, hold } : { hold };
 }
 
 function coverageWarning(id: string, cuts: YesCut[] | undefined): string | undefined {
   if (!cuts || cuts.length === 0) return `${id} has no yesAt cut-point; keeping the policy's own cut-off`;
-  if (cuts.length === 1) return `${id} has one yesAt target (${cuts[0]?.target}); it serves both block and hold`;
+  if (cuts.length === 1)
+    return `${id} has one yesAt target (${cuts[0]?.target}); it sets hold only; block keeps the policy's own cut-off`;
   return undefined;
 }
 
@@ -195,7 +201,8 @@ function coverageWarning(id: string, cuts: YesCut[] | undefined): string | undef
  * Derive a policy's noul cut-offs from a jev-eval `thresholds.json` (`yesAt`, written by
  * `thresholds --yes-precision`). Pure: pass the result's `cutoffs` to a preset
  * (`shellPolicy({ cutoffs })`) or read them in your own `decide`. Each noul dimension's
- * strictest measured precision target sets its `block` cut-off and its loosest sets `hold`.
+ * strictest measured precision target sets its `block` cut-off and its loosest sets `hold`
+ * (one target sets `hold` only).
  * A dimension jev-eval did not measure is left out, so the policy keeps its own cut-off.
  */
 export function noulCutoffsFrom(
@@ -217,7 +224,8 @@ export function noulCutoffsFrom(
     if (gap) gaps.push(gap);
     if (!cuts || cuts.length === 0) continue;
     provenance[id] = rolesFor(cuts);
-    cutoffs[id] = { block: provenance[id].block.threshold, hold: provenance[id].hold.threshold };
+    const { block, hold } = provenance[id];
+    cutoffs[id] = { hold: hold.threshold, ...(block ? { block: block.threshold } : {}) };
   }
   if (Object.keys(cutoffs).length === 0) {
     throw new Error(
