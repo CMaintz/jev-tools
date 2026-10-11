@@ -126,7 +126,7 @@ const { cutoffs, provenance, warnings } = noulCutoffsFrom(readFileSync('threshol
 const policy = shellPolicy({ cutoffs }); // every preset takes { cutoffs }
 ```
 
-For each noul dimension, the strictest precision target jev-eval reached sets the `block` cut-off and the loosest sets `hold`. A wrong block costs more than a hold, so blocks get the higher precision and holds the higher recall. A dimension with one measured target uses it for both, and one jev-eval could not measure keeps the preset's built-in value. Both cases come back as warnings, along with a model mismatch or a reworded dimension. It throws on a file without `yesAt`, a policy without noul dimensions, or a file that measured none of them. Without `cutoffs`, presets behave exactly as before.
+For each noul dimension, the strictest precision target jev-eval reached sets the `block` cut-off and the loosest sets `hold`. A wrong block costs more than a hold, so blocks get the higher precision and holds the higher recall. A dimension with one measured target uses it for `hold` only: there is no strict reading to block on, so `block` keeps the preset's built-in value. A dimension jev-eval could not measure keeps both built-in values. Both cases come back as warnings, along with a model mismatch or a reworded dimension. It throws on a file without `yesAt`, a policy without noul dimensions, or a file that measured none of them. Without `cutoffs`, presets behave exactly as before.
 
 In your own policy, read `cutoffs.<dimension>?.block ?? <default>` inside `decide`.
 
