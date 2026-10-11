@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 1.1.0
+## [1.1.0](https://github.com/CMaintz/jev-tools/compare/ecddb6f...triage-v1.1.0) (2026-10-11)
 
 First release from the jev-tools monorepo. `CMaintz/jev-triage@v1` picks it up through its pin.
 
