@@ -6,7 +6,7 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 
 - LangChain **Python** parity (a PyPI package mirroring the core).
 
-## 2.0.0
+## [2.0.0](https://github.com/CMaintz/jev-tools/compare/guard-v1.1.0...guard-v2.0.0) (2026-10-26)
 
 ### Breaking
 

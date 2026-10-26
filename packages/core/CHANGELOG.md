@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.0
+## [1.0.0](https://github.com/CMaintz/jev-tools/compare/core-v0.4.1...core-v1.0.0) (2026-10-26)
 
 The API is now stable and follows semver.
 

@@ -11,7 +11,7 @@ permissions:
   pull-requests: read
 jobs:
   security:
-    uses: CMaintz/foundry/.github/workflows/security.yml@a7ce66217276e6a279be2d3861fa1da7c40cfa76 # v2.11.1
+    uses: CMaintz/foundry/.github/workflows/security.yml@664443a5d900c46353343c56ca8404954a0f8d63 # v2.13.0
     permissions:
       contents: read
       pull-requests: read # gitleaks lists the PR's commits
