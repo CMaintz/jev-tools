@@ -2,6 +2,21 @@
 
 All notable changes to this project are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1](https://github.com/CMaintz/jev-tools/compare/triage-v1.1.0...triage-v1.1.1) (2026-10-26)
+
+### BREAKING CHANGES
+
+* stable 1.0 API, with guard and sort 2.0 (efd0820)
+
+### Features
+
+* stable 1.0 API, with guard and sort 2.0 (efd0820)
+
+### Bug Fixes
+
+* lock file maintenance, bundling undici 6.29.1 (#38) (7d033f4)
+* update all non-major dependencies (#35) (6d1816a)
+
 ## [1.1.0](https://github.com/CMaintz/jev-tools/compare/ecddb6f...triage-v1.1.0) (2026-10-11)
 
 First release from the jev-tools monorepo. `CMaintz/jev-triage@v1` picks it up through its pin.
