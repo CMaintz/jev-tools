@@ -62,6 +62,8 @@ resolve_version() { # <current> <bump-arg>
   esac
 }
 
+is_explicit() { case "$1" in [0-9]*.[0-9]*.[0-9]*) return 0 ;; *) return 1 ;; esac; } # <bump-arg>
+
 range() { if [ -n "$1" ]; then echo "$1..HEAD"; else echo "HEAD"; fi; } # <since-ref-or-empty>
 
 has_breaking() { # <range> <pkg>
@@ -131,8 +133,14 @@ main() {
   fi
   step "release $PKG $cur -> $ver ($tag)"
 
-  if [ -n "$last" ] && has_breaking "$(range "$last")" "$PKG" && [ "${ver%%.*}" = "${cur%%.*}" ] && [ "${cur%%.*}" != 0 ]; then
-    die "breaking commits since $cur but $ver is not a major bump; use 'major' or an explicit X.Y.Z"
+  # Compare with the last released version, not package.json: a hand-bumped 1.0.0 must not
+  # be checked against itself.
+  local prev="$cur"
+  case "$last" in "$PKG-v"*) prev="${last#"$PKG-v"}" ;; esac
+  # An explicit X.Y.Z is the override: a commit can be breaking for one package and not
+  # another it touches (core 1.0 raised triage's Node floor, but the Action runs on node24).
+  if [ -n "$last" ] && ! is_explicit "$BUMP" && has_breaking "$(range "$last")" "$PKG"     && [ "${ver%%.*}" = "${prev%%.*}" ] && [ "${prev%%.*}" != 0 ]; then
+    die "breaking commits since $prev but $ver is not a major bump; use 'major' or an explicit X.Y.Z"
   fi
 
   section=$(mktemp)
