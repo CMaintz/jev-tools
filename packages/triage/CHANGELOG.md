@@ -4,18 +4,13 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 
 ## [1.1.1](https://github.com/CMaintz/jev-tools/compare/triage-v1.1.0...triage-v1.1.1) (2026-10-26)
 
-### BREAKING CHANGES
+### Fixed
 
-* stable 1.0 API, with guard and sort 2.0 (efd0820)
+- Bundles undici 6.29.1, past two high-severity denial-of-service advisories (GHSA-4qv8-2p9j-2685, GHSA-xjj6-f33q-929c).
 
-### Features
+### Changed
 
-* stable 1.0 API, with guard and sort 2.0 (efd0820)
-
-### Bug Fixes
-
-* lock file maintenance, bundling undici 6.29.1 (#38) (7d033f4)
-* update all non-major dependencies (#35) (6d1816a)
+- Built against `@cmaintz/jev-core` 1.0. Inputs, outputs and behavior are unchanged.
 
 ## [1.1.0](https://github.com/CMaintz/jev-tools/compare/ecddb6f...triage-v1.1.0) (2026-10-11)
 
